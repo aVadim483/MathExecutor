@@ -31,14 +31,14 @@ class TokenFactory
      *
      * @var array
      */
-    protected $operators = array();
+    protected $operators = [];
 
     /**
      * Available functions
      *
      * @var array
      */
-    protected $functions = array();
+    protected $functions = [];
 
     /**
      * Add function
@@ -50,7 +50,7 @@ class TokenFactory
      */
     public function addFunction($name, $function, $minArguments = 1, $variableArguments = false)
     {
-        $this->functions[$name] = array($minArguments, $function, $variableArguments);
+        $this->functions[$name] = [$minArguments, $function, $variableArguments];
     }
 
     /**
@@ -59,6 +59,7 @@ class TokenFactory
      * @param  string                                  $operatorClass
      *
      * @throws UnknownOperatorException
+     * @throws \ReflectionException
      */
     public function addOperator($operatorClass)
     {

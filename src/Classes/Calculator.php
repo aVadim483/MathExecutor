@@ -36,13 +36,13 @@ class Calculator
      */
     public function calculate($tokens, $variables)
     {
-        $stack = array();
+        $stack = [];
         foreach ($tokens as $token) {
             if ($token instanceof TokenLeftBracket) {
-                array_push($stack, $token);
+                $stack[] = $token;
             }
             if ($token instanceof TokenNumber) {
-                array_push($stack, $token);
+                $stack[] = $token;
             }
             if ($token instanceof TokenVariable) {
                 $variable = $token->getValue();
@@ -50,10 +50,10 @@ class Calculator
                     throw new UnknownVariableException();
                 }
                 $value = $variables[$variable];
-                array_push($stack, new TokenNumber($value));
+                $stack[] = new TokenNumber($value);
             }
             if ($token instanceof InterfaceOperator || $token instanceof TokenFunction) {
-                array_push($stack, $token->execute($stack));
+                $stack[] = $token->execute($stack);
             }
         }
         $result = array_pop($stack);

@@ -29,7 +29,7 @@ class MathExecutor
      *
      * @var array
      */
-    private $variables = array();
+    private $variables = [];
 
     /**
      * @var TokenFactory
@@ -39,16 +39,21 @@ class MathExecutor
     /**
      * @var array
      */
-    private $cache = array();
+    private $cache = [];
 
     /**
      * Base math operators
+     *
+     * @throws UnknownOperatorException
      */
     public function __construct()
     {
         $this->addDefaults();
     }
 
+    /**
+     * @throws UnknownOperatorException
+     */
     public function __clone()
     {
         $this->addDefaults();
@@ -108,10 +113,10 @@ class MathExecutor
         $this->tokenFactory->addFunction('max', 'max', 2, true);
         $this->tokenFactory->addFunction('avg', function() { return array_sum(func_get_args()) / func_num_args(); }, 2, true);
 
-        $this->setVars(array(
+        $this->setVars([
             'pi' => 3.14159265359,
             'e'  => 2.71828182846
-        ));
+        ]);
     }
 
     /**
@@ -169,7 +174,7 @@ class MathExecutor
      */
     public function removeVars()
     {
-        $this->variables = array();
+        $this->variables = [];
 
         return $this;
     }

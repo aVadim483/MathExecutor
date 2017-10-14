@@ -49,7 +49,7 @@ class Lexer
      */
     public function stringToTokensStream($input)
     {
-        $matches = array();
+        $matches = [];
         $input = preg_replace_callback('/([\)\w])\s*\-(\d)/', function ($matches){
             return $matches[1] . ' - ' . $matches[2];
         }, $input);
@@ -74,8 +74,8 @@ class Lexer
      */
     public function buildReversePolishNotation($tokensStream)
     {
-        $output = array();
-        $stack = array();
+        $output = [];
+        $stack = [];
         $function = 0;
 
         foreach ($tokensStream as $token) {
@@ -86,11 +86,11 @@ class Lexer
                 $output[] = $token;
             }
             if ($token instanceof TokenFunction) {
-                array_push($stack, $token);
+                $stack[] = $token;
                 ++$function;
             }
             if ($token instanceof TokenLeftBracket) {
-                array_push($stack, $token);
+                $stack[] = $token;
                 if ($function > 0) {
                     $output[] = $token;
                 }
@@ -133,7 +133,7 @@ class Lexer
                     $output[] = array_pop($stack);
                 }
 
-                array_push($stack, $token);
+                $stack[] = $token;
             }
         }
         while (!empty($stack)) {

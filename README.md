@@ -14,7 +14,7 @@ All instructions to install here: https://packagist.org/packages/nxp/math-execut
 ```php
 require "vendor/autoload.php";
 
-$calculator = new \NXP\MathExecutor();
+$calculator = new \avadim\MathExecutor\MathExecutor();
 
 print $calculator->execute("1 + 2 * (2 - (4+10))^2 + sin(10)");
 ```
@@ -51,7 +51,7 @@ MyNamespace/ModulusToken.php:
 <?php
 namespace MyNamespace;
 
-use NXP\Classes\Token\AbstractOperator;
+use avadim\MathExecutor\Classes\Token\AbstractOperator;
 
 class ModulusToken extends AbstractOperator
 {
@@ -116,9 +116,9 @@ $e = 2.71828182846
 You can add own variable to executor:
 
 ```php
-$executor->setVars(array(
+$executor->setVars([
     'var1' => 0.15,
     'var2' => 0.22
-));
+]);
 
 $executor->execute("$var1 + $var2");

@@ -9,14 +9,14 @@
  * file that was distributed with this source code
  */
 
-namespace MathExecutor;
+namespace avadim\MathExecutor;
 
-use MathExecutor\Classes\Calculator;
-use MathExecutor\Classes\Lexer;
-use MathExecutor\Classes\TokenFactory;
-use MathExecutor\Exception\IncorrectExpressionException;
-use MathExecutor\Exception\UnknownOperatorException;
-use MathExecutor\Exception\UnknownVariableException;
+use avadim\MathExecutor\Classes\Calculator;
+use avadim\MathExecutor\Classes\Lexer;
+use avadim\MathExecutor\Classes\TokenFactory;
+use avadim\MathExecutor\Exception\IncorrectExpressionException;
+use avadim\MathExecutor\Exception\UnknownOperatorException;
+use avadim\MathExecutor\Exception\UnknownVariableException;
 
 /**
  * Class MathExecutor
@@ -92,11 +92,11 @@ class MathExecutor
             $this->tokenFactory = $this->getTokenFactory();
         }
 
-        $this->tokenFactory->addOperator('MathExecutor\Classes\Token\TokenPlus');
-        $this->tokenFactory->addOperator('MathExecutor\Classes\Token\TokenMinus');
-        $this->tokenFactory->addOperator('MathExecutor\Classes\Token\TokenMultiply');
-        $this->tokenFactory->addOperator('MathExecutor\Classes\Token\TokenDivision');
-        $this->tokenFactory->addOperator('MathExecutor\Classes\Token\TokenDegree');
+        $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenPlus');
+        $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenMinus');
+        $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenMultiply');
+        $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenDivision');
+        $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenDegree');
 
         $this->tokenFactory->addFunction('sin', 'sin');
         $this->tokenFactory->addFunction('cos', 'cos');

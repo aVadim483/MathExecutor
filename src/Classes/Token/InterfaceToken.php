@@ -8,7 +8,7 @@
  * file that was distributed with this source code
  */
 
-namespace MathExecutor\Classes\Token;
+namespace avadim\MathExecutor\Classes\Token;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>

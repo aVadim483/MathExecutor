@@ -8,18 +8,18 @@
  * file that was distributed with this source code
  */
 
-namespace MathExecutor\Classes;
+namespace avadim\MathExecutor\Classes;
 
-use MathExecutor\Classes\Token\InterfaceToken;
-use MathExecutor\Classes\Token\TokenComma;
-use MathExecutor\Classes\Token\TokenFunction;
-use MathExecutor\Classes\Token\TokenLeftBracket;
-use MathExecutor\Classes\Token\TokenNumber;
-use MathExecutor\Classes\Token\TokenRightBracket;
-use MathExecutor\Classes\Token\TokenVariable;
-use MathExecutor\Exception\UnknownFunctionException;
-use MathExecutor\Exception\UnknownOperatorException;
-use MathExecutor\Exception\UnknownTokenException;
+use avadim\MathExecutor\Classes\Token\InterfaceToken;
+use avadim\MathExecutor\Classes\Token\TokenComma;
+use avadim\MathExecutor\Classes\Token\TokenFunction;
+use avadim\MathExecutor\Classes\Token\TokenLeftBracket;
+use avadim\MathExecutor\Classes\Token\TokenNumber;
+use avadim\MathExecutor\Classes\Token\TokenRightBracket;
+use avadim\MathExecutor\Classes\Token\TokenVariable;
+use avadim\MathExecutor\Exception\UnknownFunctionException;
+use avadim\MathExecutor\Exception\UnknownOperatorException;
+use avadim\MathExecutor\Exception\UnknownTokenException;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
@@ -57,13 +57,13 @@ class TokenFactory
      *
      * @param  string                                  $operatorClass
      *
-     * @throws \MathExecutor\Exception\UnknownOperatorException
+     * @throws UnknownOperatorException
      */
     public function addOperator($operatorClass)
     {
         $class = new \ReflectionClass($operatorClass);
 
-        if (!in_array('MathExecutor\Classes\Token\InterfaceToken', $class->getInterfaceNames())) {
+        if (!in_array('avadim\MathExecutor\Classes\Token\InterfaceToken', $class->getInterfaceNames())) {
             throw new UnknownOperatorException;
         }
 

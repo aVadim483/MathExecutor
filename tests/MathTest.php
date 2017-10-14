@@ -9,9 +9,9 @@
  * file that was distributed with this source code
  */
 
-namespace NXP\Tests;
+namespace avadim\Tests;
 
-use \NXP\MathExecutor;
+use \avadim\MathExecutor;
 
 class MathTest extends \PHPUnit_Framework_TestCase
 {

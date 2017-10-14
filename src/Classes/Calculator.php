@@ -8,14 +8,14 @@
  * file that was distributed with this source code
  */
 
-namespace MathExecutor\Classes;
+namespace avadim\MathExecutor\Classes;
 
-use MathExecutor\Classes\Token\InterfaceOperator;
-use MathExecutor\Classes\Token\TokenFunction;
-use MathExecutor\Classes\Token\TokenNumber;
-use MathExecutor\Classes\Token\TokenVariable;
-use MathExecutor\Exception\IncorrectExpressionException;
-use MathExecutor\Exception\UnknownVariableException;
+use avadim\MathExecutor\Classes\Token\InterfaceOperator;
+use avadim\MathExecutor\Classes\Token\TokenFunction;
+use avadim\MathExecutor\Classes\Token\TokenNumber;
+use avadim\MathExecutor\Classes\Token\TokenVariable;
+use avadim\MathExecutor\Exception\IncorrectExpressionException;
+use avadim\MathExecutor\Exception\UnknownVariableException;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>

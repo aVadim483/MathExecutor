@@ -8,20 +8,20 @@
  * file that was distributed with this source code
  */
 
-namespace MathExecutor\Classes;
+namespace avadim\MathExecutor\Classes;
 
-use MathExecutor\Classes\Token\AbstractOperator;
-use MathExecutor\Classes\Token\InterfaceOperator;
-use MathExecutor\Classes\Token\TokenComma;
-use MathExecutor\Classes\Token\TokenFunction;
-use MathExecutor\Classes\Token\TokenLeftBracket;
-use MathExecutor\Classes\Token\TokenNumber;
-use MathExecutor\Classes\Token\TokenRightBracket;
-use MathExecutor\Classes\Token\TokenVariable;
-use MathExecutor\Exception\IncorrectBracketsException;
-use MathExecutor\Exception\IncorrectExpressionException;
-use MathExecutor\Exception\UnknownFunctionException;
-use MathExecutor\Exception\UnknownTokenException;
+use avadim\MathExecutor\Classes\Token\AbstractOperator;
+use avadim\MathExecutor\Classes\Token\InterfaceOperator;
+use avadim\MathExecutor\Classes\Token\TokenComma;
+use avadim\MathExecutor\Classes\Token\TokenFunction;
+use avadim\MathExecutor\Classes\Token\TokenLeftBracket;
+use avadim\MathExecutor\Classes\Token\TokenNumber;
+use avadim\MathExecutor\Classes\Token\TokenRightBracket;
+use avadim\MathExecutor\Classes\Token\TokenVariable;
+use avadim\MathExecutor\Exception\IncorrectBracketsException;
+use avadim\MathExecutor\Exception\IncorrectExpressionException;
+use avadim\MathExecutor\Exception\UnknownFunctionException;
+use avadim\MathExecutor\Exception\UnknownTokenException;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>

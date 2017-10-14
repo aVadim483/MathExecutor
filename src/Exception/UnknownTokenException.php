@@ -9,7 +9,7 @@
  * file that was distributed with this source code
  */
 
-namespace MathExecutor\Exception;
+namespace avadim\MathExecutor\Exception;
 
 /**
  * @author Vitaliy Zhuk <zhuk2205@gmail.com>

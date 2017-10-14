@@ -17,7 +17,6 @@ interface InterfaceFunction
 {
     /**
      * @param array $stack
-     * @return $this
      */
     public function execute(&$stack);
 }

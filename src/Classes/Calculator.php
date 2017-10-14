@@ -12,6 +12,7 @@ namespace avadim\MathExecutor\Classes;
 
 use avadim\MathExecutor\Classes\Token\InterfaceOperator;
 use avadim\MathExecutor\Classes\Token\TokenFunction;
+use avadim\MathExecutor\Classes\Token\TokenLeftBracket;
 use avadim\MathExecutor\Classes\Token\TokenNumber;
 use avadim\MathExecutor\Classes\Token\TokenVariable;
 use avadim\MathExecutor\Exception\IncorrectExpressionException;
@@ -37,6 +38,9 @@ class Calculator
     {
         $stack = array();
         foreach ($tokens as $token) {
+            if ($token instanceof TokenLeftBracket) {
+                array_push($stack, $token);
+            }
             if ($token instanceof TokenNumber) {
                 array_push($stack, $token);
             }

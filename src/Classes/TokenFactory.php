@@ -45,11 +45,12 @@ class TokenFactory
      *
      * @param $name
      * @param $function
-     * @param $places
+     * @param $minArguments
+     * @param $variableArguments
      */
-    public function addFunction($name, $function, $places = 1)
+    public function addFunction($name, $function, $minArguments = 1, $variableArguments = false)
     {
-        $this->functions[$name] = array($places, $function);
+        $this->functions[$name] = array($minArguments, $function, $variableArguments);
     }
 
     /**

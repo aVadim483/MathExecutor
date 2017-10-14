@@ -76,6 +76,7 @@ class Lexer
     {
         $output = array();
         $stack = array();
+        $function = 0;
 
         foreach ($tokensStream as $token) {
             if ($token instanceof TokenNumber) {
@@ -86,17 +87,24 @@ class Lexer
             }
             if ($token instanceof TokenFunction) {
                 array_push($stack, $token);
+                ++$function;
             }
             if ($token instanceof TokenLeftBracket) {
                 array_push($stack, $token);
+                if ($function > 0) {
+                    $output[] = $token;
+                }
             }
             if ($token instanceof TokenComma) {
-                while (($current = array_pop($stack)) && (!$current instanceof TokenLeftBracket)) {
-                    $output[] = $current;
+                while ($stack && (!$stack[count($stack)-1] instanceof TokenLeftBracket)) {
+                    $output[] = array_pop($stack);
                     if (empty($stack)) {
                         throw new IncorrectExpressionException();
                     }
                 }
+                //if ($function && $stack && $stack[count($stack)-1] instanceof TokenLeftBracket) {
+                //    $output[] = array_pop($stack);
+                //}
             }
             if ($token instanceof TokenRightBracket) {
                 while (($current = array_pop($stack)) && (!$current instanceof TokenLeftBracket)) {
@@ -104,6 +112,9 @@ class Lexer
                 }
                 if (!empty($stack) && ($stack[count($stack)-1] instanceof TokenFunction)) {
                     $output[] = array_pop($stack);
+                }
+                if ($function > 0) {
+                    --$function;
                 }
             }
 

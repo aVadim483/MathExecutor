@@ -104,9 +104,9 @@ class MathExecutor
         $this->tokenFactory->addFunction('asin', 'asin');
         $this->tokenFactory->addFunction('acos', 'acos');
         $this->tokenFactory->addFunction('atn', 'atan');
-        $this->tokenFactory->addFunction('min', 'min', 2);
-        $this->tokenFactory->addFunction('max', 'max', 2);
-        $this->tokenFactory->addFunction('avg', function($arg1, $arg2) { return ($arg1 + $arg2) / 2; }, 2);
+        $this->tokenFactory->addFunction('min', 'min', 2, true);
+        $this->tokenFactory->addFunction('max', 'max', 2, true);
+        $this->tokenFactory->addFunction('avg', function() { return array_sum(func_get_args()) / func_num_args(); }, 2, true);
 
         $this->setVars(array(
             'pi' => 3.14159265359,

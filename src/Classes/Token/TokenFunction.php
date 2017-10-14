@@ -10,6 +10,8 @@
 
 namespace avadim\MathExecutor\Classes\Token;
 
+use avadim\MathExecutor\Exception\IncorrectExpressionException;
+
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
@@ -25,14 +27,32 @@ class TokenFunction extends AbstractContainerToken implements InterfaceFunction
 
     /**
      * @param array $stack
-     * @return $this
+     *
+     * @return TokenNumber
+     *
+     * @throws IncorrectExpressionException
      */
     public function execute(&$stack)
     {
-        $args = array();
-        list($places, $function) = $this->value;
-        for ($i = 0; $i < $places; $i++) {
-            array_push($args, array_pop($stack)->getValue());
+        $args = [];
+        $token = null;
+        list($numArguments, $function, $variableArguments) = $this->value;
+        for ($i = 0; $i < $numArguments; $i++) {
+            $token = $stack ? array_pop($stack) : null;
+            if (empty($token) || !$token instanceof TokenNumber) {
+                throw new IncorrectExpressionException();
+            }
+            $args[] = $token->getValue();
+        }
+        if ($variableArguments) {
+            while ($stack && ($token = array_pop($stack)) && !$token instanceof TokenLeftBracket) {
+                $args[] = $token->getValue();
+            }
+        } else {
+            $token = array_pop($stack);
+        }
+        if (!$token instanceof TokenLeftBracket) {
+            throw new IncorrectExpressionException();
         }
         $result = call_user_func_array($function, $args);
 

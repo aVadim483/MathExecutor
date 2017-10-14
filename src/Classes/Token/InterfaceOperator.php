@@ -8,18 +8,26 @@
  * file that was distributed with this source code
  */
 
-namespace NXP\Classes\Token;
+namespace MathExecutor\Classes\Token;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-class TokenVariable extends AbstractContainerToken
+interface InterfaceOperator
 {
+    /**
+     * @return int
+     */
+    public function getPriority();
+
     /**
      * @return string
      */
-    public static function getRegex()
-    {
-        return '\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*';
-    }
+    public function getAssociation();
+
+    /**
+     * @param  array       $stack
+     * @return TokenNumber
+     */
+    public function execute(&$stack);
 }

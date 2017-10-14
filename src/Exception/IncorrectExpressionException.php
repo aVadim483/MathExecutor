@@ -9,11 +9,11 @@
  * file that was distributed with this source code
  */
 
-namespace NXP\Exception;
+namespace MathExecutor\Exception;
 
 /**
  * @author Vitaliy Zhuk <zhuk2205@gmail.com>
  */
-class UnknownFunctionException extends \Exception
+class IncorrectExpressionException extends \Exception
 {
 }

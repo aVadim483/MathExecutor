@@ -8,17 +8,20 @@
  * file that was distributed with this source code
  */
 
-namespace NXP\Classes;
-use NXP\Classes\Token\AbstractOperator;
-use NXP\Classes\Token\InterfaceOperator;
-use NXP\Classes\Token\TokenComma;
-use NXP\Classes\Token\TokenFunction;
-use NXP\Classes\Token\TokenLeftBracket;
-use NXP\Classes\Token\TokenNumber;
-use NXP\Classes\Token\TokenRightBracket;
-use NXP\Classes\Token\TokenVariable;
-use NXP\Exception\IncorrectBracketsException;
-use NXP\Exception\IncorrectExpressionException;
+namespace MathExecutor\Classes;
+
+use MathExecutor\Classes\Token\AbstractOperator;
+use MathExecutor\Classes\Token\InterfaceOperator;
+use MathExecutor\Classes\Token\TokenComma;
+use MathExecutor\Classes\Token\TokenFunction;
+use MathExecutor\Classes\Token\TokenLeftBracket;
+use MathExecutor\Classes\Token\TokenNumber;
+use MathExecutor\Classes\Token\TokenRightBracket;
+use MathExecutor\Classes\Token\TokenVariable;
+use MathExecutor\Exception\IncorrectBracketsException;
+use MathExecutor\Exception\IncorrectExpressionException;
+use MathExecutor\Exception\UnknownFunctionException;
+use MathExecutor\Exception\UnknownTokenException;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
@@ -37,8 +40,12 @@ class Lexer
 
     /**
      * @param  string                                      $input Source string of equation
+     *
      * @return array                                       Tokens stream
-     * @throws \NXP\Exception\IncorrectExpressionException
+     *
+     * @throws IncorrectExpressionException
+     * @throws UnknownFunctionException
+     * @throws UnknownTokenException
      */
     public function stringToTokensStream($input)
     {
@@ -58,7 +65,9 @@ class Lexer
     /**
      * @param  array                                       $tokensStream Tokens stream
      * @return array                                       Array of tokens in revers polish notation
-     * @throws \NXP\Exception\IncorrectExpressionException
+     *
+     * @throws IncorrectExpressionException
+     * @throws IncorrectBracketsException
      */
     public function buildReversePolishNotation($tokensStream)
     {
@@ -100,10 +109,10 @@ class Lexer
                     count($stack) > 0 &&
                     ($stack[count($stack)-1] instanceof InterfaceOperator) &&
                     ((
-                        $token->getAssociation() == AbstractOperator::LEFT_ASSOC &&
+                        $token->getAssociation() === AbstractOperator::LEFT_ASSOC &&
                         $token->getPriority() <= $stack[count($stack)-1]->getPriority()
                     ) || (
-                        $token->getAssociation() == AbstractOperator::RIGHT_ASSOC &&
+                        $token->getAssociation() === AbstractOperator::RIGHT_ASSOC &&
                         $token->getPriority() < $stack[count($stack)-1]->getPriority()
                     ))
                 ) {

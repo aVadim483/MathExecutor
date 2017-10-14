@@ -8,14 +8,14 @@
  * file that was distributed with this source code
  */
 
-namespace NXP\Classes;
+namespace MathExecutor\Classes;
 
-use NXP\Classes\Token\InterfaceOperator;
-use NXP\Classes\Token\TokenFunction;
-use NXP\Classes\Token\TokenNumber;
-use NXP\Classes\Token\TokenVariable;
-use NXP\Exception\IncorrectExpressionException;
-use NXP\Exception\UnknownVariableException;
+use MathExecutor\Classes\Token\InterfaceOperator;
+use MathExecutor\Classes\Token\TokenFunction;
+use MathExecutor\Classes\Token\TokenNumber;
+use MathExecutor\Classes\Token\TokenVariable;
+use MathExecutor\Exception\IncorrectExpressionException;
+use MathExecutor\Exception\UnknownVariableException;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
@@ -24,11 +24,14 @@ class Calculator
 {
     /**
      * Calculate array of tokens in reverse polish notation
-     * @param  array                                       $tokens    Array of tokens
-     * @param  array                                       $variables Array of variables
-     * @return number                                      Result
-     * @throws \NXP\Exception\IncorrectExpressionException
-     * @throws \NXP\Exception\UnknownVariableException
+     *
+     * @param  array                         $tokens    Array of tokens
+     * @param  array                         $variables Array of variables
+     *
+     * @return number                        Result
+     *
+     * @throws IncorrectExpressionException
+     * @throws UnknownVariableException
      */
     public function calculate($tokens, $variables)
     {

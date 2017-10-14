@@ -8,16 +8,18 @@
  * file that was distributed with this source code
  */
 
-namespace NXP\Classes\Token;
+namespace MathExecutor\Classes\Token;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-interface InterfaceFunction
+class TokenLeftBracket implements InterfaceToken
 {
     /**
-     * @param array $stack
-     * @return $this
+     * @return string
      */
-    public function execute(&$stack);
+    public static function getRegex()
+    {
+        return '\(';
+    }
 }

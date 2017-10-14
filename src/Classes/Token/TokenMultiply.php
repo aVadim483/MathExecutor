@@ -8,19 +8,19 @@
 * file that was distributed with this source code
 */
 
-namespace NXP\Classes\Token;
+namespace MathExecutor\Classes\Token;
 
 /**
 * @author Alexander Kiryukhin <alexander@symdev.org>
 */
-class TokenDivision extends AbstractOperator
+class TokenMultiply extends AbstractOperator
 {
     /**
      * @return string
      */
     public static function getRegex()
     {
-        return '\/';
+        return '\*';
     }
 
     /**
@@ -47,7 +47,7 @@ class TokenDivision extends AbstractOperator
     {
         $op2 = array_pop($stack);
         $op1 = array_pop($stack);
-        $result = $op2->getValue() != 0 ? $op1->getValue() / $op2->getValue() : 0;
+        $result = $op1->getValue() * $op2->getValue();
 
         return new TokenNumber($result);
     }

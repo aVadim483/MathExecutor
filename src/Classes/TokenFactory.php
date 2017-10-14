@@ -8,18 +8,18 @@
  * file that was distributed with this source code
  */
 
-namespace NXP\Classes;
+namespace MathExecutor\Classes;
 
-use NXP\Classes\Token\InterfaceToken;
-use NXP\Classes\Token\TokenComma;
-use NXP\Classes\Token\TokenFunction;
-use NXP\Classes\Token\TokenLeftBracket;
-use NXP\Classes\Token\TokenNumber;
-use NXP\Classes\Token\TokenRightBracket;
-use NXP\Classes\Token\TokenVariable;
-use NXP\Exception\UnknownFunctionException;
-use NXP\Exception\UnknownOperatorException;
-use NXP\Exception\UnknownTokenException;
+use MathExecutor\Classes\Token\InterfaceToken;
+use MathExecutor\Classes\Token\TokenComma;
+use MathExecutor\Classes\Token\TokenFunction;
+use MathExecutor\Classes\Token\TokenLeftBracket;
+use MathExecutor\Classes\Token\TokenNumber;
+use MathExecutor\Classes\Token\TokenRightBracket;
+use MathExecutor\Classes\Token\TokenVariable;
+use MathExecutor\Exception\UnknownFunctionException;
+use MathExecutor\Exception\UnknownOperatorException;
+use MathExecutor\Exception\UnknownTokenException;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
@@ -42,6 +42,7 @@ class TokenFactory
 
     /**
      * Add function
+     *
      * @param $name
      * @param $function
      * @param $places
@@ -53,14 +54,16 @@ class TokenFactory
 
     /**
      * Add operator
+     *
      * @param  string                                  $operatorClass
-     * @throws \NXP\Exception\UnknownOperatorException
+     *
+     * @throws \MathExecutor\Exception\UnknownOperatorException
      */
     public function addOperator($operatorClass)
     {
         $class = new \ReflectionClass($operatorClass);
 
-        if (!in_array('NXP\Classes\Token\InterfaceToken', $class->getInterfaceNames())) {
+        if (!in_array('MathExecutor\Classes\Token\InterfaceToken', $class->getInterfaceNames())) {
             throw new UnknownOperatorException;
         }
 
@@ -70,6 +73,7 @@ class TokenFactory
 
     /**
      * Add variable
+     *
      * @param string $name
      * @param mixed  $value
      */
@@ -102,7 +106,10 @@ class TokenFactory
 
     /**
      * @param  string                $token
+     *
      * @return InterfaceToken
+     *
+     * @throws UnknownFunctionException
      * @throws UnknownTokenException
      */
     public function createToken($token)
@@ -111,15 +118,15 @@ class TokenFactory
             return new TokenNumber($token);
         }
 
-        if ($token == '(') {
+        if ($token === '(') {
             return new TokenLeftBracket();
         }
 
-        if ($token == ')') {
+        if ($token === ')') {
             return new TokenRightBracket();
         }
 
-        if ($token == ',') {
+        if ($token === ',') {
             return new TokenComma();
         }
 

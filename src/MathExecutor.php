@@ -9,16 +9,18 @@
  * file that was distributed with this source code
  */
 
-namespace NXP;
+namespace MathExecutor;
 
-use NXP\Classes\Calculator;
-use NXP\Classes\Lexer;
-use NXP\Classes\Token;
-use NXP\Classes\TokenFactory;
+use MathExecutor\Classes\Calculator;
+use MathExecutor\Classes\Lexer;
+use MathExecutor\Classes\TokenFactory;
+use MathExecutor\Exception\IncorrectExpressionException;
+use MathExecutor\Exception\UnknownOperatorException;
+use MathExecutor\Exception\UnknownVariableException;
 
 /**
  * Class MathExecutor
- * @package NXP
+ * @package MathExecutor
  */
 class MathExecutor
 {
@@ -53,17 +55,48 @@ class MathExecutor
     }
 
     /**
+     * @return TokenFactory
+     */
+    public function getTokenFactory()
+    {
+        return new TokenFactory();
+    }
+
+    /**
+     * @return Lexer
+     */
+    public function getLexer()
+    {
+        if (!$this->tokenFactory) {
+            $this->tokenFactory = $this->getTokenFactory();
+        }
+        return new Lexer($this->tokenFactory);
+    }
+
+    /**
+     * @return Calculator
+     */
+    public function getCalculator()
+    {
+        return new Calculator();
+    }
+
+    /**
      * Set default operands and functions
+     *
+     * @throws UnknownOperatorException
      */
     protected function addDefaults()
     {
-        $this->tokenFactory = new TokenFactory();
+        if (!$this->tokenFactory) {
+            $this->tokenFactory = $this->getTokenFactory();
+        }
 
-        $this->tokenFactory->addOperator('NXP\Classes\Token\TokenPlus');
-        $this->tokenFactory->addOperator('NXP\Classes\Token\TokenMinus');
-        $this->tokenFactory->addOperator('NXP\Classes\Token\TokenMultiply');
-        $this->tokenFactory->addOperator('NXP\Classes\Token\TokenDivision');
-        $this->tokenFactory->addOperator('NXP\Classes\Token\TokenDegree');
+        $this->tokenFactory->addOperator('MathExecutor\Classes\Token\TokenPlus');
+        $this->tokenFactory->addOperator('MathExecutor\Classes\Token\TokenMinus');
+        $this->tokenFactory->addOperator('MathExecutor\Classes\Token\TokenMultiply');
+        $this->tokenFactory->addOperator('MathExecutor\Classes\Token\TokenDivision');
+        $this->tokenFactory->addOperator('MathExecutor\Classes\Token\TokenDegree');
 
         $this->tokenFactory->addFunction('sin', 'sin');
         $this->tokenFactory->addFunction('cos', 'cos');
@@ -86,7 +119,7 @@ class MathExecutor
      *
      * @param  string        $variable
      * @param  integer|float $value
-     * @throws \Exception
+     *
      * @return MathExecutor
      */
     public function setVar($variable, $value)
@@ -101,6 +134,7 @@ class MathExecutor
      *
      * @param  array        $variables
      * @param  bool         $clear     Clear previous variables
+     *
      * @return MathExecutor
      */
     public function setVars(array $variables, $clear = true)
@@ -120,6 +154,7 @@ class MathExecutor
      * Remove variable from executor
      *
      * @param  string       $variable
+     *
      * @return MathExecutor
      */
     public function removeVar($variable)
@@ -143,7 +178,10 @@ class MathExecutor
      * Add operator to executor
      *
      * @param  string       $operatorClass Class of operator token
+     *
      * @return MathExecutor
+     *
+     * @throws UnknownOperatorException
      */
     public function addOperator($operatorClass)
     {
@@ -158,6 +196,7 @@ class MathExecutor
      * @param  string       $name     Name of function
      * @param  callable     $function Function
      * @param  int          $places   Count of arguments
+     *
      * @return MathExecutor
      */
     public function addFunction($name, callable $function = null, $places = 1)
@@ -167,25 +206,29 @@ class MathExecutor
         return $this;
     }
 
+
     /**
      * Execute expression
      *
      * @param $expression
+     *
      * @return number
+     *
+     * @throws IncorrectExpressionException
+     * @throws UnknownVariableException
      */
     public function execute($expression)
     {
         if (!array_key_exists($expression, $this->cache)) {
-            $lexer = new Lexer($this->tokenFactory);
+            $lexer = $this->getLexer();
             $tokensStream = $lexer->stringToTokensStream($expression);
             $tokens = $lexer->buildReversePolishNotation($tokensStream);
             $this->cache[$expression] = $tokens;
         } else {
             $tokens = $this->cache[$expression];
         }
-        $calculator = new Calculator();
-        $result = $calculator->calculate($tokens, $this->variables);
+        $calculator = $this->getCalculator();
 
-        return $result;
+        return $calculator->calculate($tokens, $this->variables);
     }
 }

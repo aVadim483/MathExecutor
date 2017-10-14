@@ -9,11 +9,11 @@
  * file that was distributed with this source code
  */
 
-namespace NXP\Exception;
+namespace MathExecutor\Exception;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * @author Vitaliy Zhuk <zhuk2205@gmail.com>
  */
-class IncorrectBracketsException extends \Exception
+class UnknownFunctionException extends \Exception
 {
 }

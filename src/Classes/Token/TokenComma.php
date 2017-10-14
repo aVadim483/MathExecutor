@@ -8,15 +8,18 @@
  * file that was distributed with this source code
  */
 
-namespace NXP\Classes\Token;
+namespace MathExecutor\Classes\Token;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-interface InterfaceToken
+class TokenComma implements InterfaceToken
 {
     /**
      * @return string
      */
-    public static function getRegex();
+    public static function getRegex()
+    {
+        return '\,';
+    }
 }

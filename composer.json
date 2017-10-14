@@ -1,5 +1,5 @@
 {
-    "name": "nxp/math-executor",
+    "name": "avadim/math-executor",
     "description": "Simple math expressions calculator",
     "minimum-stability": "stable",
     "keywords": ["math","parser","expression","calculator"],

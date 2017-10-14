@@ -50,6 +50,9 @@ class Lexer
     public function stringToTokensStream($input)
     {
         $matches = array();
+        $input = preg_replace_callback('/([\)\w])\s*\-(\d)/', function ($matches){
+            return $matches[1] . ' - ' . $matches[2];
+        }, $input);
         preg_match_all($this->tokenFactory->getTokenParserRegex(), $input, $matches);
         $tokenFactory = $this->tokenFactory;
         $tokensStream = array_map(

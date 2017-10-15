@@ -14,6 +14,7 @@ namespace avadim\MathExecutor;
 use avadim\MathExecutor\Classes\Calculator;
 use avadim\MathExecutor\Classes\Lexer;
 use avadim\MathExecutor\Classes\TokenFactory;
+use avadim\MathExecutor\Exception\IncorrectBracketsException;
 use avadim\MathExecutor\Exception\IncorrectExpressionException;
 use avadim\MathExecutor\Exception\UnknownOperatorException;
 use avadim\MathExecutor\Exception\UnknownVariableException;
@@ -24,6 +25,8 @@ use avadim\MathExecutor\Exception\UnknownVariableException;
  */
 class MathExecutor
 {
+    const RESULT_VARIABLE = '_';
+
     /**
      * Available variables
      *
@@ -98,10 +101,11 @@ class MathExecutor
         }
 
         $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenPlus');
+        $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenUnaryMinus');
         $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenMinus');
         $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenMultiply');
         $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenDivision');
-        $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenDegree');
+        $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenPower');
 
         $this->tokenFactory->addFunction('sin', 'sin');
         $this->tokenFactory->addFunction('cos', 'cos');
@@ -180,6 +184,19 @@ class MathExecutor
     }
 
     /**
+     * @param $variable
+     *
+     * @return mixed
+     */
+    public function getVar($variable)
+    {
+        if (isset($this->variables[$variable])) {
+            return $this->variables[$variable];
+        }
+        return null;
+    }
+
+    /**
      * Add operator to executor
      *
      * @param  string       $operatorClass Class of operator token
@@ -215,14 +232,16 @@ class MathExecutor
     /**
      * Execute expression
      *
-     * @param $expression
+     * @param string $expression
+     * @param string $variable
      *
-     * @return number
+     * @return $this
      *
      * @throws IncorrectExpressionException
+     * @throws IncorrectBracketsException
      * @throws UnknownVariableException
      */
-    public function execute($expression)
+    public function calc($expression, $variable = null)
     {
         if (!array_key_exists($expression, $this->cache)) {
             $lexer = $this->getLexer();
@@ -234,6 +253,34 @@ class MathExecutor
         }
         $calculator = $this->getCalculator();
 
-        return $calculator->calculate($tokens, $this->variables);
+        $result = $calculator->calculate($tokens, $this->variables);
+
+        return $this->setVar($variable ?: self::RESULT_VARIABLE, $result);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getResult()
+    {
+        return $this->getVar(self::RESULT_VARIABLE);
+    }
+
+    /**
+     * Execute expression
+     *
+     * @param $expression
+     *
+     * @return number
+     *
+     * @throws IncorrectExpressionException
+     * @throws IncorrectBracketsException
+     * @throws UnknownVariableException
+     */
+    public function execute($expression)
+    {
+        $this->calc($expression);
+
+        return $this->getResult();
     }
 }

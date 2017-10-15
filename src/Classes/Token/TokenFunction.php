@@ -39,7 +39,7 @@ class TokenFunction extends AbstractContainerToken implements InterfaceFunction
         list($numArguments, $function, $variableArguments) = $this->value;
         for ($i = 0; $i < $numArguments; $i++) {
             $token = $stack ? array_pop($stack) : null;
-            if (empty($token) || !$token instanceof TokenNumber) {
+            if (empty($token) || !$token instanceof AbstractScalarToken) {
                 throw new IncorrectExpressionException();
             }
             $args[] = $token->getValue();
@@ -54,7 +54,7 @@ class TokenFunction extends AbstractContainerToken implements InterfaceFunction
         if (!$token instanceof TokenLeftBracket) {
             throw new IncorrectExpressionException();
         }
-        $result = call_user_func_array($function, $args);
+        $result = call_user_func_array($function, array_reverse($args));
 
         return new TokenNumber($result);
     }

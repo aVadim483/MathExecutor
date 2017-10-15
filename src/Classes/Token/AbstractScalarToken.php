@@ -13,24 +13,6 @@ namespace avadim\MathExecutor\Classes\Token;
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-interface InterfaceOperator
+abstract class AbstractScalarToken extends AbstractContainerToken
 {
-    public static function getRegex();
-
-    /**
-     * @return int
-     */
-    public function getPriority();
-
-    /**
-     * @return string
-     */
-    public function getAssociation();
-
-    /**
-     * @param  array       $stack
-     * @return TokenNumber
-     */
-    public function execute(&$stack);
-
 }

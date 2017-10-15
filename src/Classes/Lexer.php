@@ -11,6 +11,7 @@
 namespace avadim\MathExecutor\Classes;
 
 use avadim\MathExecutor\Classes\Token\AbstractOperator;
+use avadim\MathExecutor\Classes\Token\AbstractScalarToken;
 use avadim\MathExecutor\Classes\Token\InterfaceOperator;
 use avadim\MathExecutor\Classes\Token\TokenComma;
 use avadim\MathExecutor\Classes\Token\TokenFunction;
@@ -39,9 +40,9 @@ class Lexer
     }
 
     /**
-     * @param  string                                      $input Source string of equation
+     * @param  string $input Source string of equation
      *
-     * @return array                                       Tokens stream
+     * @return array  Tokens stream
      *
      * @throws IncorrectExpressionException
      * @throws UnknownFunctionException
@@ -50,24 +51,22 @@ class Lexer
     public function stringToTokensStream($input)
     {
         $matches = [];
+        // minus before number
         $input = preg_replace_callback('/([\)\w])\s*\-(\d)/', function ($matches){
             return $matches[1] . ' - ' . $matches[2];
         }, $input);
         preg_match_all($this->tokenFactory->getTokenParserRegex(), $input, $matches);
-        $tokenFactory = $this->tokenFactory;
-        $tokensStream = array_map(
-            function ($token) use ($tokenFactory) {
-                return $tokenFactory->createToken($token);
-            },
-            $matches[0]
-        );
+        $tokensStream = [];
+        foreach($matches[0] as $tokenStr) {
+            $tokensStream[] = $this->tokenFactory->createToken($tokenStr, $tokensStream);
+        }
 
         return $tokensStream;
     }
 
     /**
-     * @param  array                                       $tokensStream Tokens stream
-     * @return array                                       Array of tokens in revers polish notation
+     * @param  array $tokensStream Tokens stream
+     * @return array Array of tokens in revers polish notation
      *
      * @throws IncorrectExpressionException
      * @throws IncorrectBracketsException
@@ -79,7 +78,7 @@ class Lexer
         $function = 0;
 
         foreach ($tokensStream as $token) {
-            if ($token instanceof TokenNumber) {
+            if ($token instanceof AbstractScalarToken) {
                 $output[] = $token;
             }
             if ($token instanceof TokenVariable) {
@@ -102,9 +101,6 @@ class Lexer
                         throw new IncorrectExpressionException();
                     }
                 }
-                //if ($function && $stack && $stack[count($stack)-1] instanceof TokenLeftBracket) {
-                //    $output[] = array_pop($stack);
-                //}
             }
             if ($token instanceof TokenRightBracket) {
                 while (($current = array_pop($stack)) && (!$current instanceof TokenLeftBracket)) {

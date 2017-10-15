@@ -13,7 +13,7 @@ namespace avadim\MathExecutor\Classes\Token;
 /**
 * @author Alexander Kiryukhin <alexander@symdev.org>
 */
-class TokenDegree extends AbstractOperator
+class TokenPower extends AbstractOperator
 {
     /**
      * @return string
@@ -41,6 +41,7 @@ class TokenDegree extends AbstractOperator
 
     /**
      * @param InterfaceToken[] $stack
+     *
      * @return TokenNumber
      */
     public function execute(&$stack)

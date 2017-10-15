@@ -10,6 +10,7 @@
 
 namespace avadim\MathExecutor\Classes;
 
+use avadim\MathExecutor\Classes\Token\AbstractScalarToken;
 use avadim\MathExecutor\Classes\Token\InterfaceOperator;
 use avadim\MathExecutor\Classes\Token\TokenFunction;
 use avadim\MathExecutor\Classes\Token\TokenLeftBracket;
@@ -26,10 +27,10 @@ class Calculator
     /**
      * Calculate array of tokens in reverse polish notation
      *
-     * @param  array                         $tokens    Array of tokens
-     * @param  array                         $variables Array of variables
+     * @param  array $tokens    Array of tokens
+     * @param  array $variables Array of variables
      *
-     * @return number                        Result
+     * @return int|float
      *
      * @throws IncorrectExpressionException
      * @throws UnknownVariableException
@@ -41,7 +42,7 @@ class Calculator
             if ($token instanceof TokenLeftBracket) {
                 $stack[] = $token;
             }
-            if ($token instanceof TokenNumber) {
+            if ($token instanceof AbstractScalarToken) {
                 $stack[] = $token;
             }
             if ($token instanceof TokenVariable) {

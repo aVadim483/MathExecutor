@@ -3,12 +3,16 @@
     "description": "Simple math expressions calculator",
     "minimum-stability": "stable",
     "keywords": ["math","parser","expression","calculator"],
-    "homepage": "http://github.com/NeonXP/MathExecutor",
+    "homepage": "https://github.com/aVadim483/MathExecutor",
     "license": "MIT",
     "authors": [
         {
             "name": "Alexander 'NeonXP' Kiryukhin",
             "email": "frei@neonxp.info"
+        },
+        {
+            "name": "Vadim Shemarov aka aVadim",
+            "email": "vshemarov@gmail.com"
         }
     ],
     "require": {

@@ -13,7 +13,7 @@ namespace avadim\MathExecutor\Classes\Token;
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-class TokenNumber extends AbstractContainerToken
+class TokenNumber extends AbstractScalarToken
 {
     /**
      * @return string

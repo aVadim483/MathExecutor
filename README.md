@@ -1,22 +1,27 @@
-[![Stories in Ready](https://badge.waffle.io/NeonXP/MathExecutor.png?label=ready&title=Ready)](https://waffle.io/NeonXP/MathExecutor)
+[![License](https://poser.pugx.org/avadim/math-executor/license)](https://packagist.org/packages/avadim/math-executor)
 # MathExecutor
 
-[![Build Status](https://travis-ci.org/NeonXP/MathExecutor.png?branch=master)](https://travis-ci.org/NeonXP/MathExecutor)
-
-Simple math expressions calculator
+Math expressions calculator with custom operators, functions and variables
 
 ## Install via Composer
 
-All instructions to install here: https://packagist.org/packages/nxp/math-executor
+All instructions to install here: https://packagist.org/packages/avadim/math-executor
 
 ## Sample usage:
 
 ```php
-require "vendor/autoload.php";
+require 'vendor/autoload.php';
 
 $calculator = new \avadim\MathExecutor\MathExecutor();
 
-print $calculator->execute("1 + 2 * (2 - (4+10))^2 + sin(10)");
+print $calculator->execute('1 + 2 * (2 - (4+10))^2 + sin(10)');
+
+// cascade execution - variable $_ has result of previous calculation
+print $calculator
+        ->calc('4+10')
+        ->calc('1 + 2 * (2 - $_)^2')
+        ->calc('$_ + sin(10)')
+        ->getResult();
 ```
 
 ## Functions:
@@ -34,7 +39,7 @@ Default functions:
 
 Add custom function to executor:
 ```php
-$executor->addFunction('abs', function($arg) {
+$calculator->addFunction('abs', function($arg) {
     return abs($arg);
 }, 1);
 ```
@@ -101,7 +106,7 @@ class ModulusToken extends AbstractOperator
 And adding to executor:
 
 ```php
-$executor->addOperator('MyNamespace\ModulusToken');
+$calculator->addOperator('MyNamespace\ModulusToken');
 ```
 
 ## Variables:
@@ -116,9 +121,9 @@ $e = 2.71828182846
 You can add own variable to executor:
 
 ```php
-$executor->setVars([
+$calculator->setVars([
     'var1' => 0.15,
     'var2' => 0.22
 ]);
 
-$executor->execute("$var1 + $var2");
+$calculator->execute('$var1 + $var2');

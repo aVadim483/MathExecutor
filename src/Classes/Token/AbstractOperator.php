@@ -17,4 +17,19 @@ abstract class AbstractOperator implements InterfaceToken, InterfaceOperator
 {
     const RIGHT_ASSOC   = 'RIGHT';
     const LEFT_ASSOC    = 'LEFT';
+
+    /**
+     * @param string           $tokenStr
+     * @param InterfaceToken[] $prevTokens
+     *
+     * @return bool
+     */
+    public function isMatch($tokenStr, $prevTokens)
+    {
+        $regex = sprintf('/%s/i', static::getRegex());
+        if (preg_match($regex, $tokenStr)) {
+            return true;
+        }
+        return false;
+    }
 }

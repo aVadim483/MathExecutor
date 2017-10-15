@@ -17,6 +17,7 @@ use avadim\MathExecutor\Classes\Token\TokenLeftBracket;
 use avadim\MathExecutor\Classes\Token\TokenNumber;
 use avadim\MathExecutor\Classes\Token\TokenRightBracket;
 use avadim\MathExecutor\Classes\Token\TokenVariable;
+use avadim\MathExecutor\Classes\Token\TokenString;
 use avadim\MathExecutor\Exception\UnknownFunctionException;
 use avadim\MathExecutor\Exception\UnknownOperatorException;
 use avadim\MathExecutor\Exception\UnknownTokenException;
@@ -56,32 +57,24 @@ class TokenFactory
     /**
      * Add operator
      *
-     * @param  string                                  $operatorClass
+     * @param  string $operatorClass
      *
      * @throws UnknownOperatorException
-     * @throws \ReflectionException
      */
     public function addOperator($operatorClass)
     {
-        $class = new \ReflectionClass($operatorClass);
+        try {
+            $class = new \ReflectionClass($operatorClass);
 
-        if (!in_array('avadim\MathExecutor\Classes\Token\InterfaceToken', $class->getInterfaceNames())) {
+            if (!in_array(InterfaceToken::class, $class->getInterfaceNames(), true)) {
+                throw new UnknownOperatorException;
+            }
+        } catch (\Exception $e) {
             throw new UnknownOperatorException;
         }
 
         $this->operators[] = $operatorClass;
         $this->operators = array_unique($this->operators);
-    }
-
-    /**
-     * Add variable
-     *
-     * @param string $name
-     * @param mixed  $value
-     */
-    public function addVariable($name, $value)
-    {
-
     }
 
     /**
@@ -95,7 +88,8 @@ class TokenFactory
         }
 
         return sprintf(
-            '/(%s)|([%s])|(%s)|(%s)|([%s%s%s])/i',
+            '/(%s)|(%s)|([%s])|(%s)|(%s)|([%s%s%s])/i',
+            TokenString::getRegex(),
             TokenNumber::getRegex(),
             $operatorsRegex,
             TokenFunction::getRegex(),
@@ -107,47 +101,52 @@ class TokenFactory
     }
 
     /**
-     * @param  string                $token
+     * @param  string $tokenStr
+     * @param  array  $tokensStream
      *
      * @return InterfaceToken
      *
      * @throws UnknownFunctionException
      * @throws UnknownTokenException
      */
-    public function createToken($token)
+    public function createToken($tokenStr, $tokensStream)
     {
-        if (is_numeric($token)) {
-            return new TokenNumber($token);
+        $regex = sprintf('/%s/i', TokenString::getRegex());
+        if (preg_match($regex, $tokenStr)) {
+            return new TokenString(substr($tokenStr,1, -1));
         }
 
-        if ($token === '(') {
+        if (is_numeric($tokenStr)) {
+            return new TokenNumber($tokenStr);
+        }
+
+        if ($tokenStr === '(') {
             return new TokenLeftBracket();
         }
 
-        if ($token === ')') {
+        if ($tokenStr === ')') {
             return new TokenRightBracket();
         }
 
-        if ($token === ',') {
+        if ($tokenStr === ',') {
             return new TokenComma();
         }
 
         foreach ($this->operators as $operator) {
-            $regex = sprintf('/%s/i', $operator::getRegex());
-            if (preg_match($regex, $token)) {
+            if ($operator::isMatch($tokenStr, $tokensStream)) {
                 return new $operator;
             }
         }
 
         $regex = sprintf('/%s/i', TokenVariable::getRegex());
-        if (preg_match($regex, $token)) {
-            return new TokenVariable(substr($token,1));
+        if (preg_match($regex, $tokenStr)) {
+            return new TokenVariable(substr($tokenStr,1));
         }
 
         $regex = sprintf('/%s/i', TokenFunction::getRegex());
-        if (preg_match($regex, $token)) {
-            if (isset($this->functions[$token])) {
-                return new TokenFunction($this->functions[$token]);
+        if (preg_match($regex, $tokenStr)) {
+            if (isset($this->functions[$tokenStr])) {
+                return new TokenFunction($this->functions[$tokenStr]);
             } else {
                 throw new UnknownFunctionException();
             }

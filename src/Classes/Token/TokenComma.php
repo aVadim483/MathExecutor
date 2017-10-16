@@ -20,6 +20,6 @@ class TokenComma implements InterfaceToken
      */
     public static function getRegex()
     {
-        return '\,';
+        return '/,/';
     }
 }

@@ -20,6 +20,6 @@ class TokenNumber extends AbstractScalarToken
      */
     public static function getRegex()
     {
-        return '\-?\d+\.?\d*(E-?\d+)?';
+        return '/\-?\d+\.?\d*(E-?\d+)?/';
     }
 }

@@ -10,7 +10,7 @@
 
 namespace avadim\MathExecutor\Classes\Token;
 
-use avadim\MathExecutor\Exception\IncorrectExpressionException;
+use avadim\MathExecutor\Exception\CalcException;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
@@ -22,7 +22,7 @@ class TokenFunction extends AbstractContainerToken implements InterfaceFunction
      */
     public static function getRegex()
     {
-        return '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*';
+        return '/[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/';
     }
 
     /**
@@ -30,17 +30,17 @@ class TokenFunction extends AbstractContainerToken implements InterfaceFunction
      *
      * @return TokenNumber
      *
-     * @throws IncorrectExpressionException
+     * @throws CalcException
      */
     public function execute(&$stack)
     {
         $args = [];
         $token = null;
-        list($numArguments, $function, $variableArguments) = $this->value;
+        list($name, $numArguments, $callback, $variableArguments) = $this->value;
         for ($i = 0; $i < $numArguments; $i++) {
             $token = $stack ? array_pop($stack) : null;
             if (empty($token) || !$token instanceof AbstractScalarToken) {
-                throw new IncorrectExpressionException();
+                throw new CalcException('Wrong arguments of function "' . $name . '"', CalcException::CALC_WRONG_FUNC_ARGS);
             }
             $args[] = $token->getValue();
         }
@@ -52,9 +52,9 @@ class TokenFunction extends AbstractContainerToken implements InterfaceFunction
             $token = array_pop($stack);
         }
         if (!$token instanceof TokenLeftBracket) {
-            throw new IncorrectExpressionException();
+            throw new CalcException('Wrong arguments of function "' . $name . '"', CalcException::CALC_WRONG_FUNC_ARGS);
         }
-        $result = call_user_func_array($function, array_reverse($args));
+        $result = call_user_func_array($callback, array_reverse($args));
 
         return new TokenNumber($result);
     }

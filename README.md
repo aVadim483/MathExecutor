@@ -5,6 +5,8 @@ Math expressions calculator with custom operators, functions and variables
 
 ## Install via Composer
 
+composer require avadim/math-executor
+
 All instructions to install here: https://packagist.org/packages/avadim/math-executor
 
 ## Sample usage:
@@ -39,9 +41,11 @@ Default functions:
 
 Add custom function to executor:
 ```php
-$calculator->addFunction('abs', function($arg) {
-    return abs($arg);
-}, 1);
+$calculator->addFunction('hypotenuse', function($a, $b) {
+    return sqrt($a ** 2 + $b ** 2);
+}, 2);
+
+print $calculator->execute('hypotenuse(3,4)');
 ```
 
 ## Operators:
@@ -57,6 +61,8 @@ MyNamespace/ModulusToken.php:
 namespace MyNamespace;
 
 use avadim\MathExecutor\Classes\Token\AbstractOperator;
+use \avadim\MathExecutor\Classes\Token\InterfaceToken;
+use \avadim\MathExecutor\Classes\Token\TokenNumber;
 
 class ModulusToken extends AbstractOperator
 {
@@ -66,11 +72,11 @@ class ModulusToken extends AbstractOperator
      */
     public static function getRegex()
     {
-        return '\%';
+        return '/\%/';
     }
 
     /**
-     * Priority of this operator
+     * Priority of this operator (1 equals "+" or "-", 2 equals "*" or "/", 3 equals "^")
      * @return int
      */
     public function getPriority()
@@ -79,7 +85,7 @@ class ModulusToken extends AbstractOperator
     }
 
     /**
-     * Associaion of this operator (self::LEFT_ASSOC or self::RIGHT_ASSOC)
+     * Association of this operator (self::LEFT_ASSOC or self::RIGHT_ASSOC)
      * @return string
      */
     public function getAssociation()
@@ -90,7 +96,7 @@ class ModulusToken extends AbstractOperator
     /**
      * Execution of this operator
      * @param InterfaceToken[] $stack Stack of tokens
-     * @return TokenNumber            Result of execution
+     * @return TokenNumber
      */
     public function execute(&$stack)
     {
@@ -106,7 +112,7 @@ class ModulusToken extends AbstractOperator
 And adding to executor:
 
 ```php
-$calculator->addOperator('MyNamespace\ModulusToken');
+$calculator->addOperator('\MyNamespace\ModulusToken');
 ```
 
 ## Variables:

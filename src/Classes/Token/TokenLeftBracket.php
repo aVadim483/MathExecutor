@@ -20,6 +20,6 @@ class TokenLeftBracket implements InterfaceToken
      */
     public static function getRegex()
     {
-        return '\(';
+        return '/\(/';
     }
 }

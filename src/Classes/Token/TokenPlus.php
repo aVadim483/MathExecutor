@@ -20,7 +20,7 @@ class TokenPlus extends AbstractOperator
      */
     public static function getRegex()
     {
-        return '\+';
+        return '/\+/';
     }
 
     /**
@@ -41,7 +41,8 @@ class TokenPlus extends AbstractOperator
 
     /**
      * @param InterfaceToken[] $stack
-     * @return $this
+     *
+     * @return TokenNumber
      */
     public function execute(&$stack)
     {

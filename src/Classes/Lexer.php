@@ -16,13 +16,10 @@ use avadim\MathExecutor\Classes\Token\InterfaceOperator;
 use avadim\MathExecutor\Classes\Token\TokenComma;
 use avadim\MathExecutor\Classes\Token\TokenFunction;
 use avadim\MathExecutor\Classes\Token\TokenLeftBracket;
-use avadim\MathExecutor\Classes\Token\TokenNumber;
 use avadim\MathExecutor\Classes\Token\TokenRightBracket;
 use avadim\MathExecutor\Classes\Token\TokenVariable;
-use avadim\MathExecutor\Exception\IncorrectBracketsException;
-use avadim\MathExecutor\Exception\IncorrectExpressionException;
-use avadim\MathExecutor\Exception\UnknownFunctionException;
-use avadim\MathExecutor\Exception\UnknownTokenException;
+
+use avadim\MathExecutor\Exception\LexerException;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
@@ -44,21 +41,27 @@ class Lexer
      *
      * @return array  Tokens stream
      *
-     * @throws IncorrectExpressionException
-     * @throws UnknownFunctionException
-     * @throws UnknownTokenException
+     * @throws LexerException
      */
     public function stringToTokensStream($input)
     {
-        $matches = [];
-        // minus before number
-        $input = preg_replace_callback('/([\)\w])\s*\-(\d)/', function ($matches){
-            return $matches[1] . ' - ' . $matches[2];
-        }, $input);
-        preg_match_all($this->tokenFactory->getTokenParserRegex(), $input, $matches);
+        // parse to lexemes array
+        $lexemes = token_get_all('<?php ' . $input);
+        array_shift($lexemes);
+
+        // convert lexemes to tokens
         $tokensStream = [];
-        foreach($matches[0] as $tokenStr) {
-            $tokensStream[] = $this->tokenFactory->createToken($tokenStr, $tokensStream);
+        foreach($lexemes as $lexeme) {
+            if (is_string($lexeme)) {
+                $tokenStr = $lexeme;
+            } elseif(isset($lexeme[0], $lexeme[1]) && $lexeme[0] !== T_BAD_CHARACTER && $lexeme[0] !== T_WHITESPACE) {
+                $tokenStr = $lexeme[1];
+            } else {
+                $tokenStr = '';
+            }
+            if ($tokenStr) {
+                $tokensStream[] = $this->tokenFactory->createToken($tokenStr, $tokensStream);
+            }
         }
 
         return $tokensStream;
@@ -68,8 +71,7 @@ class Lexer
      * @param  array $tokensStream Tokens stream
      * @return array Array of tokens in revers polish notation
      *
-     * @throws IncorrectExpressionException
-     * @throws IncorrectBracketsException
+     * @throws LexerException
      */
     public function buildReversePolishNotation($tokensStream)
     {
@@ -98,7 +100,7 @@ class Lexer
                 while ($stack && (!$stack[count($stack)-1] instanceof TokenLeftBracket)) {
                     $output[] = array_pop($stack);
                     if (empty($stack)) {
-                        throw new IncorrectExpressionException();
+                        throw new LexerException('Incorrect expression', LexerException::LEXER_ERROR);
                     }
                 }
             }
@@ -117,7 +119,7 @@ class Lexer
             if ($token instanceof AbstractOperator) {
                 while (
                     count($stack) > 0 &&
-                    ($stack[count($stack)-1] instanceof InterfaceOperator) &&
+                    ($stack[count($stack)-1] instanceof AbstractOperator) &&
                     ((
                         $token->getAssociation() === AbstractOperator::LEFT_ASSOC &&
                         $token->getPriority() <= $stack[count($stack)-1]->getPriority()
@@ -135,7 +137,7 @@ class Lexer
         while (!empty($stack)) {
             $token = array_pop($stack);
             if ($token instanceof TokenLeftBracket || $token instanceof TokenRightBracket) {
-                throw new IncorrectBracketsException();
+                throw new LexerException('Incorrect brackets expression', LexerException::LEXER_ERROR);
             }
             $output[] = $token;
         }

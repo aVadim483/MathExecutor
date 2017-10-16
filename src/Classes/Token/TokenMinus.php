@@ -20,7 +20,7 @@ class TokenMinus extends AbstractOperator
      */
     public static function getRegex()
     {
-        return '\-';
+        return '/\-/';
     }
 
     /**

@@ -14,6 +14,6 @@ namespace avadim\MathExecutor\Exception;
 /**
  * @author Vitaliy Zhuk <zhuk2205@gmail.com>
  */
-class UnknownFunctionException extends \Exception
+class ConfigException extends MathExecutorException
 {
 }

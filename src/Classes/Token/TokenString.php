@@ -20,6 +20,6 @@ class TokenString extends AbstractScalarToken
      */
     public static function getRegex()
     {
-        return '\"[^\"]*\"';
+        return '/\"[^\"]*\"/';
     }
 }

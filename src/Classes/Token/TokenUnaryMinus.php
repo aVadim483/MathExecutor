@@ -20,7 +20,24 @@ class TokenUnaryMinus extends AbstractOperator
      */
     public static function getRegex()
     {
-        return '\-';
+        return '/\-/';
+    }
+
+    /**
+     * @param string           $tokenStr
+     * @param InterfaceToken[] $prevTokens
+     *
+     * @return bool
+     */
+    public static function isMatch($tokenStr, $prevTokens)
+    {
+        $prevToken = end($prevTokens);
+        if ($prevToken instanceof AbstractOperator || $prevToken instanceof TokenLeftBracket || $prevToken instanceof TokenComma) {
+            if (preg_match(static::getRegex(), $tokenStr)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -28,7 +45,7 @@ class TokenUnaryMinus extends AbstractOperator
      */
     public function getPriority()
     {
-        return 5;
+        return 4;
     }
 
     /**
@@ -51,21 +68,4 @@ class TokenUnaryMinus extends AbstractOperator
         return new TokenNumber(-$op1->getValue());
     }
 
-    /**
-     * @param string           $tokenStr
-     * @param InterfaceToken[] $prevTokens
-     *
-     * @return bool
-     */
-    public function isMatch($tokenStr, $prevTokens)
-    {
-        $prevToken = end($prevTokens);
-        if ($prevToken instanceof AbstractOperator || $prevToken instanceof TokenLeftBracket || $prevToken instanceof TokenComma) {
-            $regex = sprintf('/%s/i', static::getRegex());
-            if (preg_match($regex, $tokenStr)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

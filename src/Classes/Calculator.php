@@ -16,8 +16,7 @@ use avadim\MathExecutor\Classes\Token\TokenFunction;
 use avadim\MathExecutor\Classes\Token\TokenLeftBracket;
 use avadim\MathExecutor\Classes\Token\TokenNumber;
 use avadim\MathExecutor\Classes\Token\TokenVariable;
-use avadim\MathExecutor\Exception\IncorrectExpressionException;
-use avadim\MathExecutor\Exception\UnknownVariableException;
+use avadim\MathExecutor\Exception\CalcException;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
@@ -32,8 +31,7 @@ class Calculator
      *
      * @return int|float
      *
-     * @throws IncorrectExpressionException
-     * @throws UnknownVariableException
+     * @throws CalcException
      */
     public function calculate($tokens, $variables)
     {
@@ -48,7 +46,7 @@ class Calculator
             if ($token instanceof TokenVariable) {
                 $variable = $token->getValue();
                 if (!array_key_exists($variable, $variables)) {
-                    throw new UnknownVariableException();
+                    throw new CalcException('Unknown variable "' . $variable . '"', CalcException::CALC_UNKNOWN_VARIABLE);
                 }
                 $value = $variables[$variable];
                 $stack[] = new TokenNumber($value);
@@ -59,7 +57,7 @@ class Calculator
         }
         $result = array_pop($stack);
         if (!empty($stack)) {
-            throw new IncorrectExpressionException();
+            throw new CalcException('Incorrect expression ', CalcException::CALC_INCORRECT_EXPRESSION);
         }
 
         return $result->getValue();

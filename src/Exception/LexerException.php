@@ -12,8 +12,8 @@
 namespace avadim\MathExecutor\Exception;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * @author Vitaliy Zhuk <zhuk2205@gmail.com>
  */
-class IncorrectBracketsException extends \Exception
+class LexerException extends MathExecutorException
 {
 }

@@ -20,6 +20,6 @@ class TokenVariable extends AbstractContainerToken
      */
     public static function getRegex()
     {
-        return '\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*';
+        return '/\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/';
     }
 }

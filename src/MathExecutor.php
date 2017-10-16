@@ -14,10 +14,9 @@ namespace avadim\MathExecutor;
 use avadim\MathExecutor\Classes\Calculator;
 use avadim\MathExecutor\Classes\Lexer;
 use avadim\MathExecutor\Classes\TokenFactory;
-use avadim\MathExecutor\Exception\IncorrectBracketsException;
-use avadim\MathExecutor\Exception\IncorrectExpressionException;
-use avadim\MathExecutor\Exception\UnknownOperatorException;
-use avadim\MathExecutor\Exception\UnknownVariableException;
+
+use avadim\MathExecutor\Exception\CalcException;
+use avadim\MathExecutor\Exception\ConfigException;
 
 /**
  * Class MathExecutor
@@ -47,7 +46,7 @@ class MathExecutor
     /**
      * Base math operators
      *
-     * @throws UnknownOperatorException
+     * @throws ConfigException
      */
     public function __construct()
     {
@@ -55,7 +54,7 @@ class MathExecutor
     }
 
     /**
-     * @throws UnknownOperatorException
+     * @throws ConfigException
      */
     public function __clone()
     {
@@ -92,7 +91,7 @@ class MathExecutor
     /**
      * Set default operands and functions
      *
-     * @throws UnknownOperatorException
+     * @throws ConfigException
      */
     protected function addDefaults()
     {
@@ -237,9 +236,7 @@ class MathExecutor
      *
      * @return $this
      *
-     * @throws IncorrectExpressionException
-     * @throws IncorrectBracketsException
-     * @throws UnknownVariableException
+     * @throws CalcException
      */
     public function calc($expression, $variable = null)
     {
@@ -273,9 +270,7 @@ class MathExecutor
      *
      * @return number
      *
-     * @throws IncorrectExpressionException
-     * @throws IncorrectBracketsException
-     * @throws UnknownVariableException
+     * @throws CalcException
      */
     public function execute($expression)
     {

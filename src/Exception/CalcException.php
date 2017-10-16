@@ -14,6 +14,6 @@ namespace avadim\MathExecutor\Exception;
 /**
  * @author Vitaliy Zhuk <zhuk2205@gmail.com>
  */
-class UnknownTokenException extends \Exception
+class CalcException extends MathExecutorException
 {
 }

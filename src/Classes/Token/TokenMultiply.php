@@ -15,13 +15,7 @@ namespace avadim\MathExecutor\Classes\Token;
 */
 class TokenMultiply extends AbstractOperator
 {
-    /**
-     * @return string
-     */
-    public static function getRegex()
-    {
-        return '/\*/';
-    }
+    protected static $pattern = '*';
 
     /**
      * @return int

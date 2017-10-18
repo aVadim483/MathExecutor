@@ -13,6 +13,6 @@ namespace avadim\MathExecutor\Classes\Token;
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-abstract class AbstractScalarToken extends AbstractContainerToken
+abstract class AbstractScalarToken extends AbstractToken
 {
 }

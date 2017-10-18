@@ -15,13 +15,7 @@ namespace avadim\MathExecutor\Classes\Token;
 */
 class TokenDivision extends AbstractOperator
 {
-    /**
-     * @return string
-     */
-    public static function getRegex()
-    {
-        return '/\//';
-    }
+    protected static $pattern = '/';
 
     /**
      * @return int
@@ -48,7 +42,7 @@ class TokenDivision extends AbstractOperator
     {
         $op2 = array_pop($stack);
         $op1 = array_pop($stack);
-        $result = $op2->getValue() != 0 ? $op1->getValue() / $op2->getValue() : 0;
+        $result = (float)$op2->getValue() !== 0.0 ? $op1->getValue() / $op2->getValue() : 0;
 
         return new TokenNumber($result);
     }

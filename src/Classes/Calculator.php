@@ -10,8 +10,8 @@
 
 namespace avadim\MathExecutor\Classes;
 
+use avadim\MathExecutor\Classes\Token\AbstractOperator;
 use avadim\MathExecutor\Classes\Token\AbstractScalarToken;
-use avadim\MathExecutor\Classes\Token\InterfaceOperator;
 use avadim\MathExecutor\Classes\Token\TokenFunction;
 use avadim\MathExecutor\Classes\Token\TokenLeftBracket;
 use avadim\MathExecutor\Classes\Token\TokenNumber;
@@ -51,7 +51,7 @@ class Calculator
                 $value = $variables[$variable];
                 $stack[] = new TokenNumber($value);
             }
-            if ($token instanceof InterfaceOperator || $token instanceof TokenFunction) {
+            if ($token instanceof AbstractOperator || $token instanceof TokenFunction) {
                 $stack[] = $token->execute($stack);
             }
         }

@@ -15,12 +15,22 @@ namespace avadim\MathExecutor\Classes\Token;
 */
 class TokenMinus extends AbstractOperator
 {
+    protected static $pattern = '-';
+    protected static $matching = self::MATCH_CALLBACK;
+
     /**
-     * @return string
+     * @param string           $tokenStr
+     * @param InterfaceToken[] $prevTokens
+     *
+     * @return bool
      */
-    public static function getRegex()
+    public static function isMatch($tokenStr, $prevTokens)
     {
-        return '/\-/';
+        $prevToken = end($prevTokens);
+        if (static::$pattern === $tokenStr && !($prevToken instanceof AbstractOperator || $prevToken instanceof TokenLeftBracket || $prevToken instanceof TokenComma)) {
+            return true;
+        }
+        return false;
     }
 
     /**

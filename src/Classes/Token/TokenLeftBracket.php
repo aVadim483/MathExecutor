@@ -13,13 +13,8 @@ namespace avadim\MathExecutor\Classes\Token;
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-class TokenLeftBracket implements InterfaceToken
+class TokenLeftBracket extends AbstractToken
 {
-    /**
-     * @return string
-     */
-    public static function getRegex()
-    {
-        return '/\(/';
-    }
+    protected static $pattern = '(';
+
 }

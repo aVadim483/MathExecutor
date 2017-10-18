@@ -15,15 +15,10 @@ use avadim\MathExecutor\Exception\CalcException;
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-class TokenFunction extends AbstractContainerToken implements InterfaceFunction
+class TokenFunction extends AbstractToken
 {
-    /**
-     * @return string
-     */
-    public static function getRegex()
-    {
-        return '/[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/';
-    }
+    protected static $pattern = '/[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/';
+    protected static $matching = self::MATCH_REGEX;
 
     /**
      * @param array $stack
@@ -36,7 +31,7 @@ class TokenFunction extends AbstractContainerToken implements InterfaceFunction
     {
         $args = [];
         $token = null;
-        list($name, $numArguments, $callback, $variableArguments) = $this->value;
+        list($name, $numArguments, $callback, $variableArguments) = $this->options;
         for ($i = 0; $i < $numArguments; $i++) {
             $token = $stack ? array_pop($stack) : null;
             if (empty($token) || !$token instanceof AbstractScalarToken) {

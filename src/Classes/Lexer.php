@@ -12,7 +12,6 @@ namespace avadim\MathExecutor\Classes;
 
 use avadim\MathExecutor\Classes\Token\AbstractOperator;
 use avadim\MathExecutor\Classes\Token\AbstractScalarToken;
-use avadim\MathExecutor\Classes\Token\InterfaceOperator;
 use avadim\MathExecutor\Classes\Token\TokenComma;
 use avadim\MathExecutor\Classes\Token\TokenFunction;
 use avadim\MathExecutor\Classes\Token\TokenLeftBracket;
@@ -57,9 +56,9 @@ class Lexer
             } elseif(isset($lexeme[0], $lexeme[1]) && $lexeme[0] !== T_BAD_CHARACTER && $lexeme[0] !== T_WHITESPACE) {
                 $tokenStr = $lexeme[1];
             } else {
-                $tokenStr = '';
+                $tokenStr = null;
             }
-            if ($tokenStr) {
+            if (null !== $tokenStr) {
                 $tokensStream[] = $this->tokenFactory->createToken($tokenStr, $tokensStream);
             }
         }

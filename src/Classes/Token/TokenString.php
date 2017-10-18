@@ -15,11 +15,7 @@ namespace avadim\MathExecutor\Classes\Token;
  */
 class TokenString extends AbstractScalarToken
 {
-    /**
-     * @return string
-     */
-    public static function getRegex()
-    {
-        return '/\"[^\"]*\"/';
-    }
+    protected static $pattern = '/\"[^\"]*\"/';
+    protected static $matching = self::MATCH_REGEX;
+
 }

@@ -15,13 +15,8 @@ namespace avadim\MathExecutor\Classes\Token;
 */
 class TokenUnaryMinus extends AbstractOperator
 {
-    /**
-     * @return string
-     */
-    public static function getRegex()
-    {
-        return '/\-/';
-    }
+    protected static $pattern = '-';
+    protected static $matching = self::MATCH_CALLBACK;
 
     /**
      * @param string           $tokenStr
@@ -32,10 +27,8 @@ class TokenUnaryMinus extends AbstractOperator
     public static function isMatch($tokenStr, $prevTokens)
     {
         $prevToken = end($prevTokens);
-        if ($prevToken instanceof AbstractOperator || $prevToken instanceof TokenLeftBracket || $prevToken instanceof TokenComma) {
-            if (preg_match(static::getRegex(), $tokenStr)) {
-                return true;
-            }
+        if (static::$pattern === $tokenStr && ($prevToken instanceof AbstractOperator || $prevToken instanceof TokenLeftBracket || $prevToken instanceof TokenComma)) {
+            return true;
         }
         return false;
     }

@@ -15,11 +15,16 @@ namespace avadim\MathExecutor\Classes\Token;
  */
 class TokenNumber extends AbstractScalarToken
 {
+    protected static $matching = self::MATCH_NUMERIC;
+
     /**
-     * @return string
+     * @param string           $tokenStr
+     * @param InterfaceToken[] $prevTokens
+     *
+     * @return bool
      */
-    public static function getRegex()
+    public static function isMatch($tokenStr, $prevTokens)
     {
-        return '/\-?\d+\.?\d*(E-?\d+)?/';
+        return is_numeric($tokenStr);
     }
 }

@@ -17,6 +17,7 @@ use avadim\MathExecutor\Classes\TokenFactory;
 
 use avadim\MathExecutor\Exception\CalcException;
 use avadim\MathExecutor\Exception\ConfigException;
+use avadim\MathExecutor\Exception\LexerException;
 
 /**
  * Class MathExecutor
@@ -25,6 +26,9 @@ use avadim\MathExecutor\Exception\ConfigException;
 class MathExecutor
 {
     const RESULT_VARIABLE = '_';
+    const VAR_PREFIX      = '$';
+
+    private $cacheEnable = true;
 
     /**
      * Available variables
@@ -59,6 +63,11 @@ class MathExecutor
     public function __clone()
     {
         $this->addDefaults();
+    }
+
+    public function cacheEnable($flag)
+    {
+        $this->cacheEnable = (bool)$flag;
     }
 
     /**
@@ -99,12 +108,20 @@ class MathExecutor
             $this->tokenFactory = $this->getTokenFactory();
         }
 
-        $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenPlus');
-        $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenUnaryMinus');
-        $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenMinus');
-        $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenMultiply');
-        $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenDivision');
-        $this->tokenFactory->addOperator('avadim\MathExecutor\Classes\Token\TokenPower');
+        $this->tokenFactory->addToken('left_bracket', 'avadim\MathExecutor\Classes\Token\TokenLeftBracket');
+        $this->tokenFactory->addToken('right_bracket', 'avadim\MathExecutor\Classes\Token\TokenRightBracket');
+        $this->tokenFactory->addToken('comma', 'avadim\MathExecutor\Classes\Token\TokenComma');
+        $this->tokenFactory->addToken('number', 'avadim\MathExecutor\Classes\Token\TokenNumber');
+        $this->tokenFactory->addToken('string', 'avadim\MathExecutor\Classes\Token\TokenString');
+        $this->tokenFactory->addToken('variable', 'avadim\MathExecutor\Classes\Token\TokenVariable', self::VAR_PREFIX);
+        $this->tokenFactory->addToken('function', 'avadim\MathExecutor\Classes\Token\TokenFunction');
+
+        $this->tokenFactory->addOperator('plus', 'avadim\MathExecutor\Classes\Token\TokenPlus');
+        $this->tokenFactory->addOperator('u_minus', 'avadim\MathExecutor\Classes\Token\TokenUnaryMinus');
+        $this->tokenFactory->addOperator('minus', 'avadim\MathExecutor\Classes\Token\TokenMinus');
+        $this->tokenFactory->addOperator('multiply', 'avadim\MathExecutor\Classes\Token\TokenMultiply');
+        $this->tokenFactory->addOperator('division', 'avadim\MathExecutor\Classes\Token\TokenDivision');
+        $this->tokenFactory->addOperator('power', 'avadim\MathExecutor\Classes\Token\TokenPower');
 
         $this->tokenFactory->addFunction('sin', 'sin');
         $this->tokenFactory->addFunction('cos', 'cos');
@@ -132,6 +149,9 @@ class MathExecutor
      */
     public function setVar($variable, $value)
     {
+        if ($variable[0] !== self::VAR_PREFIX) {
+            $variable = self::VAR_PREFIX . $variable;
+        }
         $this->variables[$variable] = $value;
 
         return $this;
@@ -189,6 +209,9 @@ class MathExecutor
      */
     public function getVar($variable)
     {
+        if ($variable[0] !== self::VAR_PREFIX) {
+            $variable = self::VAR_PREFIX . $variable;
+        }
         if (isset($this->variables[$variable])) {
             return $this->variables[$variable];
         }
@@ -202,11 +225,11 @@ class MathExecutor
      *
      * @return MathExecutor
      *
-     * @throws UnknownOperatorException
+     * @throws ConfigException
      */
-    public function addOperator($operatorClass)
+    public function addOperator($name, $operatorClass)
     {
-        $this->tokenFactory->addOperator($operatorClass);
+        $this->tokenFactory->addOperator($name, $operatorClass);
 
         return $this;
     }
@@ -232,19 +255,22 @@ class MathExecutor
      * Execute expression
      *
      * @param string $expression
-     * @param string $variable
+     * @param string $resultVariable
      *
      * @return $this
      *
+     * @throws LexerException
      * @throws CalcException
      */
-    public function calc($expression, $variable = null)
+    public function calc($expression, $resultVariable = null)
     {
-        if (!array_key_exists($expression, $this->cache)) {
+        if (!$this->cacheEnable || !isset($this->cache[$expression])) {
             $lexer = $this->getLexer();
             $tokensStream = $lexer->stringToTokensStream($expression);
             $tokens = $lexer->buildReversePolishNotation($tokensStream);
-            $this->cache[$expression] = $tokens;
+            if ($this->cacheEnable) {
+                $this->cache[$expression] = $tokens;
+            }
         } else {
             $tokens = $this->cache[$expression];
         }
@@ -252,7 +278,7 @@ class MathExecutor
 
         $result = $calculator->calculate($tokens, $this->variables);
 
-        return $this->setVar($variable ?: self::RESULT_VARIABLE, $result);
+        return $this->setVar($resultVariable ?: self::RESULT_VARIABLE, $result);
     }
 
     /**

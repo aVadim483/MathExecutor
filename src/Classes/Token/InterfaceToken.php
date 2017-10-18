@@ -16,7 +16,9 @@ namespace avadim\MathExecutor\Classes\Token;
 interface InterfaceToken
 {
     /**
-     * @return string
+     * @param string $sPattern
+     *
+     * @return array
      */
-    public static function getRegex();
+    public static function getMatching($sPattern = null);
 }

@@ -13,13 +13,22 @@ namespace avadim\MathExecutor\Classes\Token;
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-class TokenVariable extends AbstractContainerToken
+class TokenVariable extends AbstractToken
 {
+    protected static $matching = self::MATCH_REGEX;
+
     /**
-     * @return string
+     * @param string $sPattern
+     *
+     * @return array
      */
-    public static function getRegex()
+    public static function getMatching($sPattern = null)
     {
-        return '/\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/';
+        return [
+            'pattern'  => '/' . preg_quote($sPattern, '/') . '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/',
+            'matching' => static::$matching,
+            'callback' => static::$callback,
+        ];
     }
+
 }

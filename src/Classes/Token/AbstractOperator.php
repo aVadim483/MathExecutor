@@ -13,22 +13,25 @@ namespace avadim\MathExecutor\Classes\Token;
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-abstract class AbstractOperator implements InterfaceToken, InterfaceOperator
+abstract class AbstractOperator extends AbstractToken
 {
     const RIGHT_ASSOC   = 'RIGHT';
     const LEFT_ASSOC    = 'LEFT';
 
     /**
-     * @param string           $tokenStr
-     * @param InterfaceToken[] $prevTokens
-     *
-     * @return bool
+     * @return int
      */
-    public static function isMatch($tokenStr, $prevTokens)
-    {
-        if (preg_match(static::getRegex(), $tokenStr)) {
-            return true;
-        }
-        return false;
-    }
+    abstract public function getPriority();
+
+    /**
+     * @return string
+     */
+    abstract public function getAssociation();
+
+    /**
+     * @param  array       $stack
+     * @return TokenNumber
+     */
+    abstract public function execute(&$stack);
+
 }

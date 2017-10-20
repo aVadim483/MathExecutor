@@ -10,15 +10,8 @@
 
 namespace avadim\MathExecutor\Classes;
 
-use avadim\MathExecutor\Classes\Token\AbstractToken;
-use avadim\MathExecutor\Classes\Token\InterfaceToken;
-use avadim\MathExecutor\Classes\Token\TokenComma;
-use avadim\MathExecutor\Classes\Token\TokenFunction;
-use avadim\MathExecutor\Classes\Token\TokenLeftBracket;
-use avadim\MathExecutor\Classes\Token\TokenNumber;
-use avadim\MathExecutor\Classes\Token\TokenRightBracket;
-use avadim\MathExecutor\Classes\Token\TokenVariable;
-use avadim\MathExecutor\Classes\Token\TokenString;
+use avadim\MathExecutor\Classes\Generic\AbstractToken;
+use avadim\MathExecutor\Classes\Generic\InterfaceToken;
 
 use avadim\MathExecutor\Exception\ConfigException;
 use avadim\MathExecutor\Exception\LexerException;
@@ -52,11 +45,12 @@ class TokenFactory
     /**
      * @param string $name
      * @param string $tokenClass
-     * @param string $sPattern
+     * @param string $pattern
+     * @param bool   $prepend
      *
      * @throws ConfigException
      */
-    public function addToken($name, $tokenClass, $sPattern = null)
+    protected function registerToken($name, $tokenClass, $pattern = null, $prepend = false)
     {
         try {
             $class = new \ReflectionClass($tokenClass);
@@ -67,13 +61,42 @@ class TokenFactory
             throw new ConfigException('Token class does not implement interface ' . InterfaceToken::class, ConfigException::CONFIG_OPERATOR_BAD_INTERFACE);
         }
 
-        /** @var InterfaceToken $tokenClass */
-        $matching = $tokenClass::getMatching($sPattern);
+        $matching = $tokenClass::getMatching($pattern);
         if (!isset($matching['pattern']) && !isset($matching['matching'])) {
             throw new ConfigException('Token class "' . $tokenClass . '" does not implement interface ' . InterfaceToken::class, ConfigException::CONFIG_OPERATOR_BAD_INTERFACE);
         }
         $matching['class'] = $tokenClass;
-        $this->tokens[$name] = $matching;
+
+        if (!isset($this->tokens[$name]) && $prepend) {
+            $this->tokens = array_merge([$name => $matching], $this->tokens);
+        } else {
+            $this->tokens[$name] = $matching;
+        }
+    }
+
+    /**
+     * @param string $name
+     * @param string $class
+     * @param string $pattern
+     *
+     * @throws ConfigException
+     */
+    public function addToken($name, $class, $pattern = null)
+    {
+        $this->registerToken($name, $class, $pattern, false);
+    }
+
+    /**
+     * Add operator
+     *
+     * @param string $name
+     * @param string $class
+     *
+     * @throws ConfigException
+     */
+    public function addOperator($name, $class)
+    {
+        $this->registerToken($name, $class, null, true);
     }
 
     /**
@@ -86,43 +109,13 @@ class TokenFactory
      */
     public function addFunction($name, $callback, $minArguments = 1, $variableArguments = false)
     {
-        if ($minArguments === -1) {
+        if (null === $minArguments) {
+            $minArguments = 1;
+        } elseif ($minArguments === -1) {
             $minArguments = 0;
             $variableArguments = true;
         }
         $this->functions[$name] = [$name, $minArguments, $callback, $variableArguments];
-    }
-
-    /**
-     * Add operator
-     *
-     * @param string $name
-     * @param string $operatorClass
-     *
-     * @throws ConfigException
-     */
-    public function addOperator($name, $operatorClass)
-    {
-        $this->addToken($name, $operatorClass);
-
-        /*
-        try {
-            $class = new \ReflectionClass($operatorClass);
-        } catch (\Exception $e) {
-            throw new ConfigException('Cannot get reflection of class "' . $operatorClass . '"', ConfigException::CONFIG_OTHER_ERRORS, $e);
-        }
-        if (!in_array(InterfaceToken::class, $class->getInterfaceNames(), true)) {
-            throw new ConfigException('Operator class does not implement interface ' . InterfaceToken::class, ConfigException::CONFIG_OPERATOR_BAD_INTERFACE);
-        }
-
-        /** @var InterfaceToken $operatorClass * /
-        $matching = $operatorClass::getMatching();
-        if (!isset($matching['pattern'], $matching['matching'])) {
-            throw new ConfigException('Operator class "' . $operatorClass . '" does not implement interface ' . InterfaceToken::class, ConfigException::CONFIG_OPERATOR_BAD_INTERFACE);
-        }
-        $matching['class'] = $operatorClass;
-        $this->operators[] = $matching;
-        */
     }
 
     /**
@@ -135,31 +128,30 @@ class TokenFactory
      */
     public function createToken($tokenStr, $tokensStream)
     {
-        foreach ($this->tokens as $tokenMatching) {
+        foreach ($this->tokens as $tokenName => $tokenMatching) {
             $tokenClass = $tokenMatching['class'];
             $tokenCallback = $tokenMatching['callback'];
-            $tokenOptions = isset($this->functions[$tokenStr]) ? $this->functions[$tokenStr] : [];
 
             switch ($tokenMatching['matching']) {
                 case AbstractToken::MATCH_CALLBACK:
                     if ($tokenClass::$tokenCallback($tokenStr, $tokensStream)) {
-                        return new $tokenClass($tokenStr, $tokenOptions);
+                        return new $tokenClass($tokenStr);
                     }
                     break;
                 case AbstractToken::MATCH_REGEX:
                     if (preg_match($tokenMatching['pattern'], $tokenStr)) {
-                        return new $tokenClass($tokenStr, $tokenOptions);
+                        return new $tokenClass($tokenStr);
                     }
                     break;
                 case AbstractToken::MATCH_NUMERIC:
                     if (is_numeric($tokenStr)) {
-                        return new $tokenClass($tokenStr, $tokenOptions);
+                        return new $tokenClass($tokenStr);
                     }
                     break;
                 case AbstractToken::MATCH_STRING:
                 default:
                     if ($tokenMatching['pattern'] === $tokenStr) {
-                        return new $tokenClass($tokenStr, $tokenOptions);
+                        return new $tokenClass($tokenStr);
                     }
             }
         }
@@ -167,58 +159,20 @@ class TokenFactory
     }
 
     /**
-     * @param  string $tokenStr
-     * @param  array  $tokensStream
+     * @param string $name
      *
-     * @return InterfaceToken
+     * @return mixed
      *
      * @throws LexerException
      */
-    public function createToken0($tokenStr, $tokensStream)
+    public function createFunction($name)
     {
-        if ($tokenStr === '(') {
-            return new TokenLeftBracket($tokenStr);
+        if (isset($this->functions[$name], $this->tokens['function']['class'])) {
+            $tokenClass = $this->tokens['function']['class'];
+            $tokenOptions = isset($this->functions[$name]) ? $this->functions[$name] : [];
+            return new $tokenClass($name, $tokenOptions);
         }
-
-        if ($tokenStr === ')') {
-            return new TokenRightBracket($tokenStr);
-        }
-
-        if ($tokenStr === ',') {
-            return new TokenComma($tokenStr);
-        }
-
-        if (is_numeric($tokenStr)) {
-            return new TokenNumber($tokenStr);
-        }
-
-        if (preg_match(TokenString::getRegex(), $tokenStr)) {
-            return new TokenString(substr($tokenStr,1, -1));
-        }
-
-        foreach ($this->operators as $operatorMatching) {
-            $operatorClass = $operatorMatching['class'];
-            if ($operatorMatching['matching']) {
-                if ($operatorClass::isMatch($tokenStr, $tokensStream)) {
-                    return new $operatorClass;
-                }
-            } elseif ($operatorMatching['pattern'] === $tokenStr) {
-                return new $operatorClass;
-            }
-        }
-
-        if (preg_match(TokenVariable::getRegex(), $tokenStr)) {
-            return new TokenVariable(substr($tokenStr,1));
-        }
-
-        if (preg_match(TokenFunction::getRegex(), $tokenStr)) {
-            if (isset($this->functions[$tokenStr])) {
-                return new TokenFunction($this->functions[$tokenStr]);
-            } else {
-                throw new LexerException('Unknown function "' . $tokenStr . '"', LexerException::LEXER_UNKNOWN_FUNCTION);
-            }
-        }
-
-        throw new LexerException('Unknown token "' . $tokenStr . '"', LexerException::LEXER_UNKNOWN_TOKEN);
+        throw new LexerException('Unknown function "' . $name . '"', LexerException::LEXER_UNKNOWN_FUNCTION);
     }
+
 }

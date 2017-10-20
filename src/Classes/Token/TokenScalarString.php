@@ -10,10 +10,12 @@
 
 namespace avadim\MathExecutor\Classes\Token;
 
+use avadim\MathExecutor\Classes\Generic\AbstractTokenScalar;
+
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-class TokenString extends AbstractScalarToken
+class TokenScalarString extends AbstractTokenScalar
 {
     protected static $pattern = '/\"[^\"]*\"/';
     protected static $matching = self::MATCH_REGEX;

@@ -10,15 +10,14 @@
 
 namespace avadim\MathExecutor\Classes\Token;
 
+use avadim\MathExecutor\Classes\Generic\AbstractToken;
+
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-interface InterfaceToken
+class TokenIdentifier extends AbstractToken
 {
-    /**
-     * @param string $sPattern
-     *
-     * @return array
-     */
-    public static function getMatching($sPattern = null);
+    protected static $pattern = '/[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/';
+    protected static $matching = self::MATCH_REGEX;
+
 }

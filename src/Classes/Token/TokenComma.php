@@ -10,6 +10,8 @@
 
 namespace avadim\MathExecutor\Classes\Token;
 
+use avadim\MathExecutor\Classes\Generic\AbstractToken;
+
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */

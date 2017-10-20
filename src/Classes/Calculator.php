@@ -10,12 +10,15 @@
 
 namespace avadim\MathExecutor\Classes;
 
-use avadim\MathExecutor\Classes\Token\AbstractOperator;
-use avadim\MathExecutor\Classes\Token\AbstractScalarToken;
+use avadim\MathExecutor\Classes\Generic\AbstractTokenOperator;
+use avadim\MathExecutor\Classes\Generic\AbstractTokenScalar;
+
 use avadim\MathExecutor\Classes\Token\TokenFunction;
+use avadim\MathExecutor\Classes\Token\TokenIdentifier;
 use avadim\MathExecutor\Classes\Token\TokenLeftBracket;
-use avadim\MathExecutor\Classes\Token\TokenNumber;
+use avadim\MathExecutor\Classes\Token\TokenScalarNumber;
 use avadim\MathExecutor\Classes\Token\TokenVariable;
+
 use avadim\MathExecutor\Exception\CalcException;
 
 /**
@@ -37,22 +40,24 @@ class Calculator
     {
         $stack = [];
         foreach ($tokens as $token) {
-            if ($token instanceof TokenLeftBracket) {
+            if ($token instanceof TokenFunction) {
+                $stack[] = $token->execute($stack);
+            } elseif ($token instanceof AbstractTokenOperator) {
+                if (empty($stack)) {
+                    throw new CalcException('Incorrect expression ', CalcException::CALC_INCORRECT_EXPRESSION);
+                }
+                $stack[] = $token->execute($stack);
+            } elseif ($token instanceof TokenLeftBracket) {
                 $stack[] = $token;
-            }
-            if ($token instanceof AbstractScalarToken) {
+            } elseif ($token instanceof AbstractTokenScalar || $token instanceof TokenIdentifier) {
                 $stack[] = $token;
-            }
-            if ($token instanceof TokenVariable) {
+            } elseif ($token instanceof TokenVariable) {
                 $variable = $token->getValue();
                 if (!array_key_exists($variable, $variables)) {
                     throw new CalcException('Unknown variable "' . $variable . '"', CalcException::CALC_UNKNOWN_VARIABLE);
                 }
                 $value = $variables[$variable];
-                $stack[] = new TokenNumber($value);
-            }
-            if ($token instanceof AbstractOperator || $token instanceof TokenFunction) {
-                $stack[] = $token->execute($stack);
+                $stack[] = new TokenScalarNumber($value);
             }
         }
         $result = array_pop($stack);

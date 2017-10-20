@@ -58,22 +58,14 @@ MyNamespace/ModulusToken.php:
 
 ```php
 <?php
-namespace MyNamespace;
+use avadim\MathExecutor\Classes\Generic\AbstractTokenOperator;
+use \avadim\MathExecutor\Classes\Generic\InterfaceToken;
 
-use avadim\MathExecutor\Classes\Token\AbstractOperator;
-use \avadim\MathExecutor\Classes\Token\InterfaceToken;
-use \avadim\MathExecutor\Classes\Token\TokenNumber;
+use \avadim\MathExecutor\Classes\Token\TokenScalarNumber;
 
-class ModulusToken extends AbstractOperator
+class TokenOperatorModulus extends AbstractTokenOperator
 {
-    /**
-     * Regex of this operator
-     * @return string
-     */
-    public static function getRegex()
-    {
-        return '/\%/';
-    }
+    protected static $pattern = 'mod';
 
     /**
      * Priority of this operator (1 equals "+" or "-", 2 equals "*" or "/", 3 equals "^")
@@ -96,7 +88,8 @@ class ModulusToken extends AbstractOperator
     /**
      * Execution of this operator
      * @param InterfaceToken[] $stack Stack of tokens
-     * @return TokenNumber
+     *
+     * @return TokenScalarNumber
      */
     public function execute(&$stack)
     {
@@ -104,7 +97,7 @@ class ModulusToken extends AbstractOperator
         $op1 = array_pop($stack);
         $result = $op1->getValue() % $op2->getValue();
 
-        return new TokenNumber($result);
+        return new TokenScalarNumber($result);
     }
 }
 ```
@@ -112,7 +105,9 @@ class ModulusToken extends AbstractOperator
 And adding to executor:
 
 ```php
-$calculator->addOperator('\MyNamespace\ModulusToken');
+$calculator = new avadim\MathExecutor\MathExecutor();
+$calculator->addOperator('mod', '\TokenOperatorModulus');
+echo $calculator->execute('286 mod 100');
 ```
 
 ## Variables:

@@ -10,10 +10,12 @@
 
 namespace avadim\MathExecutor\Classes;
 
-use avadim\MathExecutor\Classes\Token\AbstractOperator;
-use avadim\MathExecutor\Classes\Token\AbstractScalarToken;
+use avadim\MathExecutor\Classes\Generic\AbstractTokenOperator;
+use avadim\MathExecutor\Classes\Generic\AbstractTokenScalar;
+
 use avadim\MathExecutor\Classes\Token\TokenComma;
 use avadim\MathExecutor\Classes\Token\TokenFunction;
+use avadim\MathExecutor\Classes\Token\TokenIdentifier;
 use avadim\MathExecutor\Classes\Token\TokenLeftBracket;
 use avadim\MathExecutor\Classes\Token\TokenRightBracket;
 use avadim\MathExecutor\Classes\Token\TokenVariable;
@@ -63,6 +65,12 @@ class Lexer
             }
         }
 
+        foreach($tokensStream as $index => $token) {
+            if ($token instanceof TokenIdentifier && (isset($tokensStream[$index + 1])) && $tokensStream[$index + 1] instanceof TokenLeftBracket) {
+                $tokensStream[$index] = $this->tokenFactory->createFunction($token->getValue());
+            }
+        }
+
         return $tokensStream;
     }
 
@@ -79,31 +87,24 @@ class Lexer
         $function = 0;
 
         foreach ($tokensStream as $token) {
-            if ($token instanceof AbstractScalarToken) {
-                $output[] = $token;
-            }
-            if ($token instanceof TokenVariable) {
-                $output[] = $token;
-            }
             if ($token instanceof TokenFunction) {
                 $stack[] = $token;
                 ++$function;
-            }
-            if ($token instanceof TokenLeftBracket) {
+            } elseif ($token instanceof AbstractTokenScalar || $token instanceof TokenVariable || $token instanceof TokenIdentifier) {
+                $output[] = $token;
+            } elseif ($token instanceof TokenLeftBracket) {
                 $stack[] = $token;
                 if ($function > 0) {
                     $output[] = $token;
                 }
-            }
-            if ($token instanceof TokenComma) {
+            } elseif ($token instanceof TokenComma) {
                 while ($stack && (!$stack[count($stack)-1] instanceof TokenLeftBracket)) {
                     $output[] = array_pop($stack);
                     if (empty($stack)) {
                         throw new LexerException('Incorrect expression', LexerException::LEXER_ERROR);
                     }
                 }
-            }
-            if ($token instanceof TokenRightBracket) {
+            } elseif ($token instanceof TokenRightBracket) {
                 while (($current = array_pop($stack)) && (!$current instanceof TokenLeftBracket)) {
                     $output[] = $current;
                 }
@@ -113,17 +114,15 @@ class Lexer
                 if ($function > 0) {
                     --$function;
                 }
-            }
-
-            if ($token instanceof AbstractOperator) {
+            } elseif ($token instanceof AbstractTokenOperator) {
                 while (
                     count($stack) > 0 &&
-                    ($stack[count($stack)-1] instanceof AbstractOperator) &&
+                    ($stack[count($stack)-1] instanceof AbstractTokenOperator) &&
                     ((
-                        $token->getAssociation() === AbstractOperator::LEFT_ASSOC &&
+                        $token->getAssociation() === AbstractTokenOperator::LEFT_ASSOC &&
                         $token->getPriority() <= $stack[count($stack)-1]->getPriority()
                     ) || (
-                        $token->getAssociation() === AbstractOperator::RIGHT_ASSOC &&
+                        $token->getAssociation() === AbstractTokenOperator::RIGHT_ASSOC &&
                         $token->getPriority() < $stack[count($stack)-1]->getPriority()
                     ))
                 ) {

@@ -10,10 +10,13 @@
 
 namespace avadim\MathExecutor\Classes\Token;
 
+use avadim\MathExecutor\Classes\Generic\AbstractTokenScalar;
+use avadim\MathExecutor\Classes\Generic\InterfaceToken;
+
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-class TokenNumber extends AbstractScalarToken
+class TokenScalarNumber extends AbstractTokenScalar
 {
     protected static $matching = self::MATCH_NUMERIC;
 

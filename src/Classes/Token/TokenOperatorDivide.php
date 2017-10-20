@@ -10,12 +10,15 @@
 
 namespace avadim\MathExecutor\Classes\Token;
 
+use avadim\MathExecutor\Classes\Generic\AbstractTokenOperator;
+use avadim\MathExecutor\Classes\Generic\InterfaceToken;
+
 /**
 * @author Alexander Kiryukhin <alexander@symdev.org>
 */
-class TokenMultiply extends AbstractOperator
+class TokenOperatorDivide extends AbstractTokenOperator
 {
-    protected static $pattern = '*';
+    protected static $pattern = '/';
 
     /**
      * @return int
@@ -36,14 +39,14 @@ class TokenMultiply extends AbstractOperator
     /**
      * @param InterfaceToken[] $stack
      *
-     * @return TokenNumber
+     * @return TokenScalarNumber
      */
     public function execute(&$stack)
     {
         $op2 = array_pop($stack);
         $op1 = array_pop($stack);
-        $result = $op1->getValue() * $op2->getValue();
+        $result = (float)$op2->getValue() !== 0.0 ? $op1->getValue() / $op2->getValue() : 0;
 
-        return new TokenNumber($result);
+        return new TokenScalarNumber($result);
     }
 }

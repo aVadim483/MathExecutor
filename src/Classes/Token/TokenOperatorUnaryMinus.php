@@ -10,10 +10,13 @@
 
 namespace avadim\MathExecutor\Classes\Token;
 
+use avadim\MathExecutor\Classes\Generic\AbstractTokenOperator;
+use avadim\MathExecutor\Classes\Generic\InterfaceToken;
+
 /**
 * @author Alexander Kiryukhin <alexander@symdev.org>
 */
-class TokenMinus extends AbstractOperator
+class TokenOperatorUnaryMinus extends AbstractTokenOperator
 {
     protected static $pattern = '-';
     protected static $matching = self::MATCH_CALLBACK;
@@ -27,7 +30,7 @@ class TokenMinus extends AbstractOperator
     public static function isMatch($tokenStr, $prevTokens)
     {
         $prevToken = end($prevTokens);
-        if (static::$pattern === $tokenStr && !($prevToken instanceof AbstractOperator || $prevToken instanceof TokenLeftBracket || $prevToken instanceof TokenComma)) {
+        if (static::$pattern === $tokenStr && ($prevToken instanceof AbstractTokenOperator || $prevToken instanceof TokenLeftBracket || $prevToken instanceof TokenComma)) {
             return true;
         }
         return false;
@@ -38,7 +41,7 @@ class TokenMinus extends AbstractOperator
      */
     public function getPriority()
     {
-        return 1;
+        return 4;
     }
 
     /**
@@ -46,19 +49,19 @@ class TokenMinus extends AbstractOperator
      */
     public function getAssociation()
     {
-        return self::LEFT_ASSOC;
+        return self::RIGHT_ASSOC;
     }
 
     /**
      * @param InterfaceToken[] $stack
-     * @return TokenNumber
+     *
+     * @return TokenScalarNumber
      */
     public function execute(&$stack)
     {
-        $op2 = array_pop($stack);
         $op1 = array_pop($stack);
-        $result = $op1->getValue() - $op2->getValue();
 
-        return new TokenNumber($result);
+        return new TokenScalarNumber(-$op1->getValue());
     }
+
 }

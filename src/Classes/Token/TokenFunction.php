@@ -10,12 +10,13 @@
 
 namespace avadim\MathExecutor\Classes\Token;
 
+use avadim\MathExecutor\Classes\Generic\AbstractTokenScalar;
 use avadim\MathExecutor\Exception\CalcException;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
  */
-class TokenFunction extends AbstractToken
+class TokenFunction extends TokenIdentifier
 {
     protected static $pattern = '/[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/';
     protected static $matching = self::MATCH_REGEX;
@@ -23,7 +24,7 @@ class TokenFunction extends AbstractToken
     /**
      * @param array $stack
      *
-     * @return TokenNumber
+     * @return TokenScalarNumber
      *
      * @throws CalcException
      */
@@ -34,7 +35,7 @@ class TokenFunction extends AbstractToken
         list($name, $numArguments, $callback, $variableArguments) = $this->options;
         for ($i = 0; $i < $numArguments; $i++) {
             $token = $stack ? array_pop($stack) : null;
-            if (empty($token) || !$token instanceof AbstractScalarToken) {
+            if (empty($token) || !($token instanceof AbstractTokenScalar || $token instanceof TokenIdentifier)) {
                 throw new CalcException('Wrong arguments of function "' . $name . '"', CalcException::CALC_WRONG_FUNC_ARGS);
             }
             $args[] = $token->getValue();
@@ -51,6 +52,6 @@ class TokenFunction extends AbstractToken
         }
         $result = call_user_func_array($callback, array_reverse($args));
 
-        return new TokenNumber($result);
+        return new TokenScalarNumber($result);
     }
 }

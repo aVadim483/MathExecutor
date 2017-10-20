@@ -98,6 +98,48 @@ class MathExecutor
     }
 
     /**
+     * @return array
+     */
+    protected function getDefaults()
+    {
+        return [
+            'tokens' => [
+                'left_bracket'  => 'avadim\MathExecutor\Classes\Token\TokenLeftBracket',
+                'right_bracket' => 'avadim\MathExecutor\Classes\Token\TokenRightBracket',
+                'comma'         => 'avadim\MathExecutor\Classes\Token\TokenComma',
+                'number'        => 'avadim\MathExecutor\Classes\Token\TokenScalarNumber',
+                'string'        => 'avadim\MathExecutor\Classes\Token\TokenScalarString',
+                'variable'      => ['avadim\MathExecutor\Classes\Token\TokenVariable', self::VAR_PREFIX],
+                'identifier'    => 'avadim\MathExecutor\Classes\Token\TokenIdentifier',
+                'function'      => 'avadim\MathExecutor\Classes\Token\TokenFunction',
+            ],
+            'operators' => [
+                'plus'          => 'avadim\MathExecutor\Classes\Token\TokenOperatorPlus',
+                'unary_minus'   => 'avadim\MathExecutor\Classes\Token\TokenOperatorUnaryMinus',
+                'minus'         => 'avadim\MathExecutor\Classes\Token\TokenOperatorMinus',
+                'multiply'      => 'avadim\MathExecutor\Classes\Token\TokenOperatorMultiply',
+                'division'      => 'avadim\MathExecutor\Classes\Token\TokenOperatorDivide',
+                'power'         => 'avadim\MathExecutor\Classes\Token\TokenOperatorPower',
+            ],
+            'functions' => [
+                'sin'   => 'sin',
+                'cos'   => 'cos',
+                'tn'    => 'tan',
+                'asin'  => 'asin',
+                'acos'  => 'acos',
+                'atn'   => 'atan',
+                'min'   => ['min', 2, true],
+                'max'   => ['max', 2, true],
+                'avg'   => [function() { return array_sum(func_get_args()) / func_num_args(); }, 2, true],
+            ],
+            'variables' => [
+                'pi' => 3.14159265359,
+                'e'  => 2.71828182846
+            ],
+        ];
+    }
+
+    /**
      * Set default operands and functions
      *
      * @throws ConfigException
@@ -108,35 +150,46 @@ class MathExecutor
             $this->tokenFactory = $this->getTokenFactory();
         }
 
-        $this->tokenFactory->addToken('left_bracket', 'avadim\MathExecutor\Classes\Token\TokenLeftBracket');
-        $this->tokenFactory->addToken('right_bracket', 'avadim\MathExecutor\Classes\Token\TokenRightBracket');
-        $this->tokenFactory->addToken('comma', 'avadim\MathExecutor\Classes\Token\TokenComma');
-        $this->tokenFactory->addToken('number', 'avadim\MathExecutor\Classes\Token\TokenNumber');
-        $this->tokenFactory->addToken('string', 'avadim\MathExecutor\Classes\Token\TokenString');
-        $this->tokenFactory->addToken('variable', 'avadim\MathExecutor\Classes\Token\TokenVariable', self::VAR_PREFIX);
-        $this->tokenFactory->addToken('function', 'avadim\MathExecutor\Classes\Token\TokenFunction');
+        $defaults = $this->getDefaults();
 
-        $this->tokenFactory->addOperator('plus', 'avadim\MathExecutor\Classes\Token\TokenPlus');
-        $this->tokenFactory->addOperator('u_minus', 'avadim\MathExecutor\Classes\Token\TokenUnaryMinus');
-        $this->tokenFactory->addOperator('minus', 'avadim\MathExecutor\Classes\Token\TokenMinus');
-        $this->tokenFactory->addOperator('multiply', 'avadim\MathExecutor\Classes\Token\TokenMultiply');
-        $this->tokenFactory->addOperator('division', 'avadim\MathExecutor\Classes\Token\TokenDivision');
-        $this->tokenFactory->addOperator('power', 'avadim\MathExecutor\Classes\Token\TokenPower');
+        // set default tokens
+        if (isset($defaults['tokens'])) {
+            foreach($defaults['tokens'] as $name => $options) {
+                if (is_array($options)) {
+                    list($class, $pattern) = $options;
+                } else {
+                    $class = $options;
+                    $pattern = null;
+                }
+                $this->tokenFactory->addToken($name, $class, $pattern);
+            }
+        }
 
-        $this->tokenFactory->addFunction('sin', 'sin');
-        $this->tokenFactory->addFunction('cos', 'cos');
-        $this->tokenFactory->addFunction('tn', 'tan');
-        $this->tokenFactory->addFunction('asin', 'asin');
-        $this->tokenFactory->addFunction('acos', 'acos');
-        $this->tokenFactory->addFunction('atn', 'atan');
-        $this->tokenFactory->addFunction('min', 'min', 2, true);
-        $this->tokenFactory->addFunction('max', 'max', 2, true);
-        $this->tokenFactory->addFunction('avg', function() { return array_sum(func_get_args()) / func_num_args(); }, 2, true);
+        // set default operators
+        if (isset($defaults['operators'])) {
+            foreach($defaults['operators'] as $name => $class) {
+                $this->tokenFactory->addOperator($name, $class);
+            }
+        }
 
-        $this->setVars([
-            'pi' => 3.14159265359,
-            'e'  => 2.71828182846
-        ]);
+        // set default functions
+        if (isset($defaults['functions'])) {
+            foreach($defaults['functions'] as $name => $options) {
+                if (is_array($options)) {
+                    list($callback, $minArguments, $variableArguments) = $options;
+                } else {
+                    $callback = $options;
+                    $minArguments = null;
+                    $variableArguments = null;
+                }
+                $this->tokenFactory->addFunction($name, $callback, $minArguments, $variableArguments);
+            }
+        }
+
+        // set default variables
+        if (isset($defaults['variables'])) {
+            $this->setVars($defaults['variables']);
+        }
     }
 
     /**

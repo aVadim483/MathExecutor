@@ -8,7 +8,7 @@
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Classes\Token;
+namespace avadim\MathExecutor\Classes\Generic;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
@@ -59,6 +59,14 @@ abstract class AbstractToken implements InterfaceToken
     public function getValue()
     {
         return $this->value;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
     }
 
     /**

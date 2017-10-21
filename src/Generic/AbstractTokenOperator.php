@@ -8,7 +8,7 @@
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Classes\Generic;
+namespace avadim\MathExecutor\Generic;
 
 /**
  * @author Alexander Kiryukhin <alexander@symdev.org>
@@ -34,5 +34,26 @@ abstract class AbstractTokenOperator extends AbstractToken
      * @return mixed
      */
     abstract public function execute(&$stack);
+
+    /**
+     * @param $token
+     *
+     * @return bool
+     */
+    public function lowPriority($token)
+    {
+        if (
+            ($token instanceof AbstractTokenOperator)
+            &&
+            (
+                ($this->getAssociation() === AbstractTokenOperator::LEFT_ASSOC && $this->getPriority() <= $token->getPriority())
+                ||
+                ($this->getAssociation() === AbstractTokenOperator::RIGHT_ASSOC && $this->getPriority() < $token->getPriority())
+            )
+        ) {
+            return true;
+        }
+        return false;
+    }
 
 }

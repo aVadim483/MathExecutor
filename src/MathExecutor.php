@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of the MathExecutor package
  *
@@ -11,16 +10,13 @@
 
 namespace avadim\MathExecutor;
 
-use avadim\MathExecutor\Classes\Calculator;
-use avadim\MathExecutor\Classes\Lexer;
-use avadim\MathExecutor\Classes\TokenFactory;
-
 use avadim\MathExecutor\Exception\CalcException;
 use avadim\MathExecutor\Exception\ConfigException;
 use avadim\MathExecutor\Exception\LexerException;
 
 /**
  * Class MathExecutor
+ *
  * @package MathExecutor
  */
 class MathExecutor
@@ -28,6 +24,14 @@ class MathExecutor
     const RESULT_VARIABLE = '_';
     const VAR_PREFIX      = '$';
 
+    /**
+     * @var array
+     */
+    private $config = [];
+
+    /**
+     * @var bool
+     */
     private $cacheEnable = true;
 
     /**
@@ -43,6 +47,16 @@ class MathExecutor
     private $tokenFactory;
 
     /**
+     * @var Lexer
+     */
+    private $lexer;
+
+    /**
+     * @var Calculator
+     */
+    private $calculator;
+
+    /**
      * @var array
      */
     private $cache = [];
@@ -50,21 +64,41 @@ class MathExecutor
     /**
      * Base math operators
      *
+     * @param array $config
+     *
      * @throws ConfigException
      */
-    public function __construct()
+    public function __construct($config = null)
     {
-        $this->addDefaults();
+        $this->init($config);
     }
 
     /**
-     * @throws ConfigException
+     * Clone object and renew all objects
      */
     public function __clone()
     {
-        $this->addDefaults();
+        $this->init($this->getConfig());
     }
 
+    /**
+     * @param array $config
+     */
+    protected function init($config = null)
+    {
+        $this->tokenFactory = $this->createTokenFactory();
+        $this->lexer = $this->createLexer($this->tokenFactory);
+        $this->calculator = $this->createCalculator($this->tokenFactory);
+
+        if (null === $config) {
+            $config = $this->getDefaults();
+        }
+        $this->setConfig($config);
+    }
+
+    /**
+     * @param bool $flag
+     */
     public function cacheEnable($flag)
     {
         $this->cacheEnable = (bool)$flag;
@@ -73,9 +107,37 @@ class MathExecutor
     /**
      * @return TokenFactory
      */
-    public function getTokenFactory()
+    public function createTokenFactory()
     {
         return new TokenFactory();
+    }
+
+    /**
+     * @param TokenFactory $tokenFactory
+     *
+     * @return Lexer
+     */
+    public function createLexer($tokenFactory)
+    {
+        return new Lexer($tokenFactory);
+    }
+
+    /**
+     * @param TokenFactory $tokenFactory
+     *
+     * @return Calculator
+     */
+    public function createCalculator($tokenFactory)
+    {
+        return new Calculator($tokenFactory);
+    }
+
+    /**
+     * @return TokenFactory
+     */
+    public function getTokenFactory()
+    {
+        return $this->tokenFactory;
     }
 
     /**
@@ -83,10 +145,7 @@ class MathExecutor
      */
     public function getLexer()
     {
-        if (!$this->tokenFactory) {
-            $this->tokenFactory = $this->getTokenFactory();
-        }
-        return new Lexer($this->tokenFactory);
+        return $this->lexer;
     }
 
     /**
@@ -94,7 +153,7 @@ class MathExecutor
      */
     public function getCalculator()
     {
-        return new Calculator();
+        return $this->calculator;
     }
 
     /**
@@ -103,23 +162,26 @@ class MathExecutor
     protected function getDefaults()
     {
         return [
+            'options' => [
+                'var_prefix' => self::VAR_PREFIX,
+                'result_variable' => self::RESULT_VARIABLE,
+            ],
             'tokens' => [
-                'left_bracket'  => 'avadim\MathExecutor\Classes\Token\TokenLeftBracket',
-                'right_bracket' => 'avadim\MathExecutor\Classes\Token\TokenRightBracket',
-                'comma'         => 'avadim\MathExecutor\Classes\Token\TokenComma',
-                'number'        => 'avadim\MathExecutor\Classes\Token\TokenScalarNumber',
-                'string'        => 'avadim\MathExecutor\Classes\Token\TokenScalarString',
-                'variable'      => ['avadim\MathExecutor\Classes\Token\TokenVariable', self::VAR_PREFIX],
-                'identifier'    => 'avadim\MathExecutor\Classes\Token\TokenIdentifier',
-                'function'      => 'avadim\MathExecutor\Classes\Token\TokenFunction',
+                'left_bracket'  => '\avadim\MathExecutor\Token\TokenLeftBracket',
+                'right_bracket' => '\avadim\MathExecutor\Token\TokenRightBracket',
+                'comma'         => '\avadim\MathExecutor\Token\TokenComma',
+                'number'        => '\avadim\MathExecutor\Token\TokenScalarNumber',
+                'string'        => '\avadim\MathExecutor\Token\TokenScalarString',
+                'variable'      => ['\avadim\MathExecutor\Token\TokenVariable', self::VAR_PREFIX],
+                'identifier'    => '\avadim\MathExecutor\Token\TokenIdentifier',
+                'function'      => '\avadim\MathExecutor\Token\TokenFunction',
             ],
             'operators' => [
-                'plus'          => 'avadim\MathExecutor\Classes\Token\TokenOperatorPlus',
-                'unary_minus'   => 'avadim\MathExecutor\Classes\Token\TokenOperatorUnaryMinus',
-                'minus'         => 'avadim\MathExecutor\Classes\Token\TokenOperatorMinus',
-                'multiply'      => 'avadim\MathExecutor\Classes\Token\TokenOperatorMultiply',
-                'division'      => 'avadim\MathExecutor\Classes\Token\TokenOperatorDivide',
-                'power'         => 'avadim\MathExecutor\Classes\Token\TokenOperatorPower',
+                'plus'          => '\avadim\MathExecutor\Token\Operator\TokenOperatorPlus',
+                'minus'         => '\avadim\MathExecutor\Token\Operator\TokenOperatorMinus',
+                'multiply'      => '\avadim\MathExecutor\Token\Operator\TokenOperatorMultiply',
+                'division'      => '\avadim\MathExecutor\Token\Operator\TokenOperatorDivide',
+                'power'         => '\avadim\MathExecutor\Token\Operator\TokenOperatorPower',
             ],
             'functions' => [
                 'sin'   => 'sin',
@@ -142,19 +204,21 @@ class MathExecutor
     /**
      * Set default operands and functions
      *
+     * @param  array        $config
+     *
      * @throws ConfigException
      */
-    protected function addDefaults()
+    protected function setConfig($config)
     {
+        $this->config = $config;
+
         if (!$this->tokenFactory) {
             $this->tokenFactory = $this->getTokenFactory();
         }
 
-        $defaults = $this->getDefaults();
-
         // set default tokens
-        if (isset($defaults['tokens'])) {
-            foreach($defaults['tokens'] as $name => $options) {
+        if (isset($config['tokens'])) {
+            foreach($config['tokens'] as $name => $options) {
                 if (is_array($options)) {
                     list($class, $pattern) = $options;
                 } else {
@@ -166,15 +230,15 @@ class MathExecutor
         }
 
         // set default operators
-        if (isset($defaults['operators'])) {
-            foreach($defaults['operators'] as $name => $class) {
+        if (isset($config['operators'])) {
+            foreach($config['operators'] as $name => $class) {
                 $this->tokenFactory->addOperator($name, $class);
             }
         }
 
         // set default functions
-        if (isset($defaults['functions'])) {
-            foreach($defaults['functions'] as $name => $options) {
+        if (isset($config['functions'])) {
+            foreach($config['functions'] as $name => $options) {
                 if (is_array($options)) {
                     list($callback, $minArguments, $variableArguments) = $options;
                 } else {
@@ -187,9 +251,33 @@ class MathExecutor
         }
 
         // set default variables
-        if (isset($defaults['variables'])) {
-            $this->setVars($defaults['variables']);
+        if (isset($config['variables'])) {
+            $this->setVars($config['variables']);
         }
+        if (isset($config['options']['result_variable'])) {
+            $this->setVar($config['options']['result_variable'], null);
+        }
+    }
+
+    /**
+     * @return array
+     */
+    protected function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    protected function getConfigOption($name)
+    {
+        if (isset($this->config['options'][$name])) {
+            return $this->config['options'][$name];
+        }
+        return null;
     }
 
     /**
@@ -202,8 +290,10 @@ class MathExecutor
      */
     public function setVar($variable, $value)
     {
-        if ($variable[0] !== self::VAR_PREFIX) {
-            $variable = self::VAR_PREFIX . $variable;
+        if ($sVarPrefix = $this->getConfigOption('var_prefix')) {
+            if ($variable[0] !== $sVarPrefix) {
+                $variable = $sVarPrefix . $variable;
+            }
         }
         $this->variables[$variable] = $value;
 
@@ -256,14 +346,16 @@ class MathExecutor
     }
 
     /**
-     * @param $variable
+     * @param string $variable
      *
      * @return mixed
      */
     public function getVar($variable)
     {
-        if ($variable[0] !== self::VAR_PREFIX) {
-            $variable = self::VAR_PREFIX . $variable;
+        if ($sVarPrefix = $this->getConfigOption('var_prefix')) {
+            if ($variable[0] !== $sVarPrefix) {
+                $variable = $sVarPrefix . $variable;
+            }
         }
         if (isset($this->variables[$variable])) {
             return $this->variables[$variable];
@@ -274,7 +366,8 @@ class MathExecutor
     /**
      * Add operator to executor
      *
-     * @param  string       $operatorClass Class of operator token
+     * @param  string   $name
+     * @param  string   $operatorClass Class of operator token
      *
      * @return MathExecutor
      *
@@ -303,7 +396,6 @@ class MathExecutor
         return $this;
     }
 
-
     /**
      * Execute expression
      *
@@ -320,18 +412,23 @@ class MathExecutor
         if (!$this->cacheEnable || !isset($this->cache[$expression])) {
             $lexer = $this->getLexer();
             $tokensStream = $lexer->stringToTokensStream($expression);
-            $tokens = $lexer->buildReversePolishNotation($tokensStream);
+            $tokensStack = $lexer->buildReversePolishNotation($tokensStream);
             if ($this->cacheEnable) {
-                $this->cache[$expression] = $tokens;
+                $this->cache[$expression] = $tokensStack;
             }
         } else {
-            $tokens = $this->cache[$expression];
+            $tokensStack = $this->cache[$expression];
         }
         $calculator = $this->getCalculator();
+        $result = $calculator->calculate($tokensStack, $this->variables);
 
-        $result = $calculator->calculate($tokens, $this->variables);
-
-        return $this->setVar($resultVariable ?: self::RESULT_VARIABLE, $result);
+        if (!$resultVariable) {
+            $resultVariable = $this->getConfigOption('result_variable');
+        }
+        if ($resultVariable) {
+            $this->setVar($resultVariable ?: self::RESULT_VARIABLE, $result);
+        }
+        return $this;
     }
 
     /**
@@ -339,7 +436,11 @@ class MathExecutor
      */
     public function getResult()
     {
-        return $this->getVar(self::RESULT_VARIABLE);
+        $resultVariable = $this->getConfigOption('result_variable');
+        if ($resultVariable) {
+            return $this->getVar(self::RESULT_VARIABLE);
+        }
+        return null;
     }
 
     /**

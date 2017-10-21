@@ -8,13 +8,15 @@
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Classes\Token;
+namespace avadim\MathExecutor\Token;
 
-use avadim\MathExecutor\Classes\Generic\AbstractTokenScalar;
-use avadim\MathExecutor\Classes\Generic\InterfaceToken;
+use avadim\MathExecutor\Generic\AbstractTokenScalar;
+use avadim\MathExecutor\Generic\AbstractToken;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * Class TokenScalarNumber
+ *
+ * @package avadim\MathExecutor\Token
  */
 class TokenScalarNumber extends AbstractTokenScalar
 {
@@ -22,7 +24,7 @@ class TokenScalarNumber extends AbstractTokenScalar
 
     /**
      * @param string           $tokenStr
-     * @param InterfaceToken[] $prevTokens
+     * @param AbstractToken[] $prevTokens
      *
      * @return bool
      */

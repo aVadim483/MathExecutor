@@ -8,26 +8,28 @@
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Classes\Token;
+namespace avadim\MathExecutor\Token;
 
-use avadim\MathExecutor\Classes\Generic\AbstractToken;
+use avadim\MathExecutor\Generic\AbstractToken;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * Class TokenVariable
+ *
+ * @package avadim\MathExecutor\Token
  */
 class TokenVariable extends AbstractToken
 {
     protected static $matching = self::MATCH_REGEX;
 
     /**
-     * @param string $sPattern
+     * @param string $pattern
      *
      * @return array
      */
-    public static function getMatching($sPattern = null)
+    public static function getMatching($pattern = null)
     {
         return [
-            'pattern'  => '/' . preg_quote($sPattern, '/') . '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/',
+            'pattern'  => '/' . preg_quote($pattern, '/') . '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/',
             'matching' => static::$matching,
             'callback' => static::$callback,
         ];

@@ -8,14 +8,16 @@
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Classes\Token;
+namespace avadim\MathExecutor\Token;
 
-use avadim\MathExecutor\Classes\Generic\AbstractToken;
+use avadim\MathExecutor\Generic\AbstractTokenGroup;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * Class TokenLeftBracket
+ *
+ * @package avadim\MathExecutor\Token
  */
-class TokenLeftBracket extends AbstractToken
+class TokenLeftBracket extends AbstractTokenGroup
 {
     protected static $pattern = '(';
 

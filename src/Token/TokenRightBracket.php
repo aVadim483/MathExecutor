@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of the MathExecutor package
  *
@@ -9,13 +8,17 @@
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Exception;
+namespace avadim\MathExecutor\Token;
+
+use avadim\MathExecutor\Generic\AbstractToken;
 
 /**
- * Class CalcException
+ * Class TokenRightBracket
  *
- * @package avadim\MathExecutor\Exception
+ * @package avadim\MathExecutor\Token
  */
-class CalcException extends MathExecutorException
+class TokenRightBracket extends AbstractToken
 {
+    protected static $pattern = ')';
+
 }

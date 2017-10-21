@@ -8,12 +8,16 @@
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Classes\Generic;
+namespace avadim\MathExecutor\Generic;
+
+use avadim\MathExecutor\Calculator;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * Class AbstractToken
+ *
+ * @package avadim\MathExecutor\Generic
  */
-abstract class AbstractToken implements InterfaceToken
+abstract class AbstractToken
 {
     const MATCH_STRING   = 0;
     const MATCH_NUMERIC  = 1;
@@ -34,6 +38,9 @@ abstract class AbstractToken implements InterfaceToken
 
     /** @var array  */
     protected $options;
+
+    /** @var  Calculator */
+    protected $calculator;
 
     /**
      * @param string $value
@@ -70,14 +77,14 @@ abstract class AbstractToken implements InterfaceToken
     }
 
     /**
-     * @param string $sPattern
+     * @param string $pattern
      *
      * @return array
      */
-    public static function getMatching($sPattern = null)
+    public static function getMatching($pattern = null)
     {
         return [
-            'pattern'  => static::$pattern,
+            'pattern'  => (null === $pattern) ? static::$pattern : $pattern,
             'matching' => static::$matching,
             'callback' => static::$callback,
             ];
@@ -85,7 +92,7 @@ abstract class AbstractToken implements InterfaceToken
 
     /**
      * @param string           $tokenStr
-     * @param InterfaceToken[] $prevTokens
+     * @param AbstractToken[] $prevTokens
      *
      * @return bool
      */
@@ -94,4 +101,19 @@ abstract class AbstractToken implements InterfaceToken
         return static::$pattern === $tokenStr;
     }
 
+    /**
+     * @param Calculator $calculator
+     */
+    public function setCalculator($calculator)
+    {
+        $this->calculator = $calculator;
+    }
+
+    /**
+     * @return Calculator
+     */
+    public function getCalculator()
+    {
+        return $this->calculator;
+    }
 }

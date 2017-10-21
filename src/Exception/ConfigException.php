@@ -12,7 +12,9 @@
 namespace avadim\MathExecutor\Exception;
 
 /**
- * @author Vitaliy Zhuk <zhuk2205@gmail.com>
+ * Class ConfigException
+ *
+ * @package avadim\MathExecutor\Exception
  */
 class ConfigException extends MathExecutorException
 {

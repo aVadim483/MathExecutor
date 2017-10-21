@@ -8,12 +8,14 @@
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Classes\Token;
+namespace avadim\MathExecutor\Token;
 
-use avadim\MathExecutor\Classes\Generic\AbstractTokenScalar;
+use avadim\MathExecutor\Generic\AbstractTokenScalar;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * Class TokenScalarString
+ *
+ * @package avadim\MathExecutor\Token
  */
 class TokenScalarString extends AbstractTokenScalar
 {

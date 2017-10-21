@@ -8,13 +8,15 @@
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Classes\Token;
+namespace avadim\MathExecutor\Token;
 
-use avadim\MathExecutor\Classes\Generic\AbstractTokenScalar;
+use avadim\MathExecutor\Generic\AbstractTokenScalar;
 use avadim\MathExecutor\Exception\CalcException;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * Class TokenFunction
+ *
+ * @package avadim\MathExecutor\Token
  */
 class TokenFunction extends TokenIdentifier
 {

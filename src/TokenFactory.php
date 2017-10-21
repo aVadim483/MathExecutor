@@ -8,16 +8,19 @@
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Classes;
+namespace avadim\MathExecutor;
 
-use avadim\MathExecutor\Classes\Generic\AbstractToken;
-use avadim\MathExecutor\Classes\Generic\InterfaceToken;
+use avadim\MathExecutor\Generic\AbstractToken;
+use avadim\MathExecutor\Generic\AbstractTokenGroup;
+use avadim\MathExecutor\Generic\AbstractTokenOperator;
 
 use avadim\MathExecutor\Exception\ConfigException;
 use avadim\MathExecutor\Exception\LexerException;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * Class TokenFactory
+ *
+ * @package avadim\MathExecutor\Classes
  */
 class TokenFactory
 {
@@ -27,13 +30,6 @@ class TokenFactory
      * @var array
      */
     protected $tokens = [];
-
-    /**
-     * Available operators
-     *
-     * @var array
-     */
-    protected $operators = [];
 
     /**
      * Available functions
@@ -52,18 +48,9 @@ class TokenFactory
      */
     protected function registerToken($name, $tokenClass, $pattern = null, $prepend = false)
     {
-        try {
-            $class = new \ReflectionClass($tokenClass);
-        } catch (\Exception $e) {
-            throw new ConfigException('Cannot get reflection of class "' . $tokenClass . '"', ConfigException::CONFIG_OTHER_ERRORS, $e);
-        }
-        if (!in_array(InterfaceToken::class, $class->getInterfaceNames(), true)) {
-            throw new ConfigException('Token class does not implement interface ' . InterfaceToken::class, ConfigException::CONFIG_OPERATOR_BAD_INTERFACE);
-        }
-
         $matching = $tokenClass::getMatching($pattern);
         if (!isset($matching['pattern']) && !isset($matching['matching'])) {
-            throw new ConfigException('Token class "' . $tokenClass . '" does not implement interface ' . InterfaceToken::class, ConfigException::CONFIG_OPERATOR_BAD_INTERFACE);
+            throw new ConfigException('Method class "' . $tokenClass . '::getMatching()" returns bad array', ConfigException::CONFIG_OPERATOR_BAD_INTERFACE);
         }
         $matching['class'] = $tokenClass;
 
@@ -128,6 +115,18 @@ class TokenFactory
      */
     public function createToken($tokenStr, $tokensStream)
     {
+        if ($tokensStream) {
+            $prevToken = end($tokensStream);
+            $beginExpression = ($prevToken instanceof AbstractTokenOperator || $prevToken instanceof AbstractTokenGroup);
+        } else {
+            $prevToken = null;
+            $beginExpression = true;
+        }
+        if (isset($this->functions[$tokenStr], $this->tokens['function']['class'])) {
+            return $this->createFunction($tokenStr);
+        }
+
+        $options = ['begin' => $beginExpression];
         foreach ($this->tokens as $tokenName => $tokenMatching) {
             $tokenClass = $tokenMatching['class'];
             $tokenCallback = $tokenMatching['callback'];
@@ -135,23 +134,23 @@ class TokenFactory
             switch ($tokenMatching['matching']) {
                 case AbstractToken::MATCH_CALLBACK:
                     if ($tokenClass::$tokenCallback($tokenStr, $tokensStream)) {
-                        return new $tokenClass($tokenStr);
+                        return new $tokenClass($tokenStr, $options);
                     }
                     break;
                 case AbstractToken::MATCH_REGEX:
                     if (preg_match($tokenMatching['pattern'], $tokenStr)) {
-                        return new $tokenClass($tokenStr);
+                        return new $tokenClass($tokenStr, $options);
                     }
                     break;
                 case AbstractToken::MATCH_NUMERIC:
                     if (is_numeric($tokenStr)) {
-                        return new $tokenClass($tokenStr);
+                        return new $tokenClass($tokenStr, $options);
                     }
                     break;
                 case AbstractToken::MATCH_STRING:
                 default:
                     if ($tokenMatching['pattern'] === $tokenStr) {
-                        return new $tokenClass($tokenStr);
+                        return new $tokenClass($tokenStr, $options);
                     }
             }
         }
@@ -175,4 +174,11 @@ class TokenFactory
         throw new LexerException('Unknown function "' . $name . '"', LexerException::LEXER_UNKNOWN_FUNCTION);
     }
 
+    /**
+     * @return array
+     */
+    public function getFunctions()
+    {
+        return $this->functions;
+    }
 }

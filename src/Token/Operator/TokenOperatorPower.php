@@ -8,24 +8,27 @@
 * file that was distributed with this source code
 */
 
-namespace avadim\MathExecutor\Classes\Token;
+namespace avadim\MathExecutor\Token\Operator;
 
-use avadim\MathExecutor\Classes\Generic\AbstractTokenOperator;
-use avadim\MathExecutor\Classes\Generic\InterfaceToken;
+use avadim\MathExecutor\Generic\AbstractTokenOperator;
+use avadim\MathExecutor\Generic\AbstractToken;
+use avadim\MathExecutor\Token\TokenScalarNumber;
 
 /**
-* @author Alexander Kiryukhin <alexander@symdev.org>
-*/
-class TokenOperatorDivide extends AbstractTokenOperator
+ * Class TokenOperatorPower
+ *
+ * @package avadim\MathExecutor\Token
+ */
+class TokenOperatorPower extends AbstractTokenOperator
 {
-    protected static $pattern = '/';
+    protected static $pattern = '^';
 
     /**
      * @return int
      */
     public function getPriority()
     {
-        return 2;
+        return 3;
     }
 
     /**
@@ -33,11 +36,11 @@ class TokenOperatorDivide extends AbstractTokenOperator
      */
     public function getAssociation()
     {
-        return self::LEFT_ASSOC;
+        return self::RIGHT_ASSOC;
     }
 
     /**
-     * @param InterfaceToken[] $stack
+     * @param AbstractToken[] $stack
      *
      * @return TokenScalarNumber
      */
@@ -45,7 +48,7 @@ class TokenOperatorDivide extends AbstractTokenOperator
     {
         $op2 = array_pop($stack);
         $op1 = array_pop($stack);
-        $result = (float)$op2->getValue() !== 0.0 ? $op1->getValue() / $op2->getValue() : 0;
+        $result = $op1->getValue() ** $op2->getValue();
 
         return new TokenScalarNumber($result);
     }

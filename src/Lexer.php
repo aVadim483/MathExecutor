@@ -8,22 +8,24 @@
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Classes;
+namespace avadim\MathExecutor;
 
-use avadim\MathExecutor\Classes\Generic\AbstractTokenOperator;
-use avadim\MathExecutor\Classes\Generic\AbstractTokenScalar;
+use avadim\MathExecutor\Generic\AbstractTokenOperator;
+use avadim\MathExecutor\Generic\AbstractTokenScalar;
 
-use avadim\MathExecutor\Classes\Token\TokenComma;
-use avadim\MathExecutor\Classes\Token\TokenFunction;
-use avadim\MathExecutor\Classes\Token\TokenIdentifier;
-use avadim\MathExecutor\Classes\Token\TokenLeftBracket;
-use avadim\MathExecutor\Classes\Token\TokenRightBracket;
-use avadim\MathExecutor\Classes\Token\TokenVariable;
+use avadim\MathExecutor\Token\TokenComma;
+use avadim\MathExecutor\Token\TokenFunction;
+use avadim\MathExecutor\Token\TokenIdentifier;
+use avadim\MathExecutor\Token\TokenLeftBracket;
+use avadim\MathExecutor\Token\TokenRightBracket;
+use avadim\MathExecutor\Token\TokenVariable;
 
 use avadim\MathExecutor\Exception\LexerException;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * Class Lexer
+ *
+ * @package avadim\MathExecutor\Classes
  */
 class Lexer
 {
@@ -32,15 +34,22 @@ class Lexer
      */
     private $tokenFactory;
 
+    /**
+     * Lexer constructor.
+     *
+     * @param TokenFactory $tokenFactory
+     */
     public function __construct($tokenFactory)
     {
         $this->tokenFactory = $tokenFactory;
     }
 
     /**
+     * Parse input string and returns tokens stream
+     *
      * @param  string $input Source string of equation
      *
-     * @return array  Tokens stream
+     * @return array
      *
      * @throws LexerException
      */
@@ -65,18 +74,15 @@ class Lexer
             }
         }
 
-        foreach($tokensStream as $index => $token) {
-            if ($token instanceof TokenIdentifier && (isset($tokensStream[$index + 1])) && $tokensStream[$index + 1] instanceof TokenLeftBracket) {
-                $tokensStream[$index] = $this->tokenFactory->createFunction($token->getValue());
-            }
-        }
-
         return $tokensStream;
     }
 
     /**
+     * Returns tokens in revers polish notation
+     *
      * @param  array $tokensStream Tokens stream
-     * @return array Array of tokens in revers polish notation
+     *
+     * @return array
      *
      * @throws LexerException
      */
@@ -115,17 +121,7 @@ class Lexer
                     --$function;
                 }
             } elseif ($token instanceof AbstractTokenOperator) {
-                while (
-                    count($stack) > 0 &&
-                    ($stack[count($stack)-1] instanceof AbstractTokenOperator) &&
-                    ((
-                        $token->getAssociation() === AbstractTokenOperator::LEFT_ASSOC &&
-                        $token->getPriority() <= $stack[count($stack)-1]->getPriority()
-                    ) || (
-                        $token->getAssociation() === AbstractTokenOperator::RIGHT_ASSOC &&
-                        $token->getPriority() < $stack[count($stack)-1]->getPriority()
-                    ))
-                ) {
+                while (($count = count($stack)) > 0 && $token->lowPriority($stack[$count-1])) {
                     $output[] = array_pop($stack);
                 }
 
@@ -142,4 +138,5 @@ class Lexer
 
         return $output;
     }
+
 }

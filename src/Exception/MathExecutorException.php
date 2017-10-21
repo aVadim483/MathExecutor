@@ -12,7 +12,9 @@
 namespace avadim\MathExecutor\Exception;
 
 /**
- * @author Vitaliy Zhuk <zhuk2205@gmail.com>
+ * Class MathExecutorException
+ *
+ * @package avadim\MathExecutor\Exception
  */
 abstract class MathExecutorException extends \Exception
 {

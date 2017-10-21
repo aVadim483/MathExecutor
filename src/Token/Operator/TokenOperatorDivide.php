@@ -8,17 +8,20 @@
 * file that was distributed with this source code
 */
 
-namespace avadim\MathExecutor\Classes\Token;
+namespace avadim\MathExecutor\Token\Operator;
 
-use avadim\MathExecutor\Classes\Generic\AbstractTokenOperator;
-use avadim\MathExecutor\Classes\Generic\InterfaceToken;
+use avadim\MathExecutor\Generic\AbstractTokenOperator;
+use avadim\MathExecutor\Generic\AbstractToken;
+use avadim\MathExecutor\Token\TokenScalarNumber;
 
 /**
-* @author Alexander Kiryukhin <alexander@symdev.org>
-*/
-class TokenOperatorMultiply extends AbstractTokenOperator
+ * Class TokenOperatorDivide
+ *
+ * @package avadim\MathExecutor\Token
+ */
+class TokenOperatorDivide extends AbstractTokenOperator
 {
-    protected static $pattern = '*';
+    protected static $pattern = '/';
 
     /**
      * @return int
@@ -37,7 +40,7 @@ class TokenOperatorMultiply extends AbstractTokenOperator
     }
 
     /**
-     * @param InterfaceToken[] $stack
+     * @param AbstractToken[] $stack
      *
      * @return TokenScalarNumber
      */
@@ -45,7 +48,7 @@ class TokenOperatorMultiply extends AbstractTokenOperator
     {
         $op2 = array_pop($stack);
         $op1 = array_pop($stack);
-        $result = $op1->getValue() * $op2->getValue();
+        $result = (float)$op2->getValue() !== 0.0 ? $op1->getValue() / $op2->getValue() : 0;
 
         return new TokenScalarNumber($result);
     }

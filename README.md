@@ -1,6 +1,6 @@
 # MathExecutor
 [![License](https://poser.pugx.org/avadim/math-executor/license)](https://packagist.org/packages/avadim/math-executor)
-[![Latest Stable Version](https://poser.pugx.org/avadim/math-executor/version)](https://packagist.org/packages/phpunit/phpunit)
+[![Latest Stable Version](https://poser.pugx.org/avadim/math-executor/version)](https://packagist.org/packages/avadim/math-executor)
 
 Math expressions calculator with custom operators, functions and variables
 

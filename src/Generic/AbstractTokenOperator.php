@@ -1,8 +1,9 @@
 <?php
 /**
  * This file is part of the MathExecutor package
+ * https://github.com/aVadim483/MathExecutor
  *
- * (c) Alexander Kiryukhin
+ * Based on NeonXP/MathExecutor by Alexander Kiryukhin
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code
@@ -11,7 +12,9 @@
 namespace avadim\MathExecutor\Generic;
 
 /**
- * @author Alexander Kiryukhin <alexander@symdev.org>
+ * Class AbstractTokenOperator
+ *
+ * @package avadim\MathExecutor
  */
 abstract class AbstractTokenOperator extends AbstractToken
 {

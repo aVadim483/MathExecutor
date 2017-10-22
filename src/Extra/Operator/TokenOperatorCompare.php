@@ -3,33 +3,29 @@
  * This file is part of the MathExecutor package
  * https://github.com/aVadim483/MathExecutor
  *
- * Based on NeonXP/MathExecutor by Alexander Kiryukhin
- *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Token\Operator;
+namespace avadim\MathExecutor\Extra\Operator;
 
-use avadim\MathExecutor\Generic\AbstractTokenOperator;
 use avadim\MathExecutor\Generic\AbstractToken;
+use avadim\MathExecutor\Generic\AbstractTokenOperator;
 use avadim\MathExecutor\Token\TokenScalarNumber;
 
 /**
- * Class TokenOperatorPower
+ * Class TokenOperatorCompare
  *
  * @package avadim\MathExecutor
  */
-class TokenOperatorPower extends AbstractTokenOperator
+class TokenOperatorCompare extends AbstractTokenOperator
 {
-    protected static $pattern = '^';
-
     /**
      * @return int
      */
     public function getPriority()
     {
-        return 3;
+        return 0;
     }
 
     /**
@@ -37,7 +33,7 @@ class TokenOperatorPower extends AbstractTokenOperator
      */
     public function getAssociation()
     {
-        return self::RIGHT_ASSOC;
+        return self::LEFT_ASSOC;
     }
 
     /**
@@ -47,10 +43,8 @@ class TokenOperatorPower extends AbstractTokenOperator
      */
     public function execute(&$stack)
     {
-        $op2 = array_pop($stack);
-        $op1 = array_pop($stack);
-        $result = $op1->getValue() ** $op2->getValue();
-
-        return new TokenScalarNumber($result);
+        $stack[] = static::$pattern;
+        return $this->calculator->callFunction('compare', $stack);
     }
+
 }

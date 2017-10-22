@@ -1,8 +1,9 @@
 <?php
 /**
  * This file is part of the MathExecutor package
+ * https://github.com/aVadim483/MathExecutor
  *
- * (c) Alexander Kiryukhin
+ * Based on NeonXP/MathExecutor by Alexander Kiryukhin
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code
@@ -17,7 +18,7 @@ use avadim\MathExecutor\Exception\LexerException;
 /**
  * Class MathExecutor
  *
- * @package MathExecutor
+ * @package avadim\MathExecutor
  */
 class MathExecutor
 {
@@ -25,6 +26,8 @@ class MathExecutor
     const VAR_PREFIX      = '$';
 
     /**
+     * Current config array
+     *
      * @var array
      */
     private $config = [];
@@ -202,16 +205,14 @@ class MathExecutor
     }
 
     /**
-     * Set default operands and functions
+     * Apply operands and functions
      *
-     * @param  array        $config
+     * @param  array $config
      *
      * @throws ConfigException
      */
-    protected function setConfig($config)
+    protected function applyConfig($config)
     {
-        $this->config = $config;
-
         if (!$this->tokenFactory) {
             $this->tokenFactory = $this->getTokenFactory();
         }
@@ -257,6 +258,77 @@ class MathExecutor
         if (isset($config['options']['result_variable'])) {
             $this->setVar($config['options']['result_variable'], null);
         }
+    }
+
+    /**
+     * @param $config
+     *
+     * @return $this
+     */
+    protected function setConfig($config)
+    {
+        $this->applyConfig($config);
+        $this->config = $config;
+
+        return $this;
+    }
+
+    /**
+     * @param $config
+     *
+     * @return $this
+     */
+    protected function addConfig($config)
+    {
+        $this->applyConfig($config);
+        $this->config = array_merge($this->config, $config);
+
+        return $this;
+    }
+
+    /**
+     * @param string $configFile
+     *
+     * @return $this
+     *
+     * @throws ConfigException
+     */
+    public function loadConfig($configFile)
+    {
+        if (is_file($configFile)) {
+            $config = include($configFile);
+            if (is_array($config)) {
+                if (isset($config['include'])) {
+                    $dir = dirname($configFile) . '/';
+                    $includes = (array)$config['include'];
+                    foreach($includes as $filePattern) {
+                        if ($filePattern && $filePattern[0] !== '.' && false === strpos($filePattern, '/.')) {
+                            $files = glob($dir . $filePattern);
+                            foreach($files as $includeFile) {
+                                if ($includeFile !== $configFile) {
+                                    include_once $includeFile;
+                                }
+                            }
+                        }
+                    }
+                }
+                $this->addConfig($config);
+            } else {
+                throw new ConfigException('Config is not array');
+            }
+        } else {
+            throw new ConfigException('Config file does not exist');
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return MathExecutor
+     */
+    public function loadExtra()
+    {
+        return $this->loadConfig(__DIR__ . '/Extra/config.php');
     }
 
     /**
@@ -434,7 +506,7 @@ class MathExecutor
     /**
      * @return mixed
      */
-    public function getResult()
+    public function result()
     {
         $resultVariable = $this->getConfigOption('result_variable');
         if ($resultVariable) {
@@ -456,6 +528,6 @@ class MathExecutor
     {
         $this->calc($expression);
 
-        return $this->getResult();
+        return $this->result();
     }
 }

@@ -1,6 +1,7 @@
 <?php
 /**
  * This file is part of the MathExecutor package
+ * https://github.com/aVadim483/MathExecutor
  *
  */
 

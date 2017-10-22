@@ -1,8 +1,9 @@
 <?php
 /**
  * This file is part of the MathExecutor package
+ * https://github.com/aVadim483/MathExecutor
  *
- * (c) Alexander Kiryukhin
+ * Based on NeonXP/MathExecutor by Alexander Kiryukhin
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code
@@ -25,7 +26,7 @@ use avadim\MathExecutor\Exception\LexerException;
 /**
  * Class Lexer
  *
- * @package avadim\MathExecutor\Classes
+ * @package avadim\MathExecutor
  */
 class Lexer
 {

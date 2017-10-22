@@ -1,15 +1,16 @@
-[![License](https://poser.pugx.org/avadim/math-executor/license)](https://packagist.org/packages/avadim/math-executor)
 # MathExecutor
+[![License](https://poser.pugx.org/avadim/math-executor/license)](https://packagist.org/packages/avadim/math-executor)
+[![Latest Stable Version](https://poser.pugx.org/avadim/math-executor/version)](https://packagist.org/packages/phpunit/phpunit)
 
 Math expressions calculator with custom operators, functions and variables
 
 ## Install via Composer
 
-composer require avadim/math-executor
+|$ composer require avadim/math-executor
 
 All instructions to install here: https://packagist.org/packages/avadim/math-executor
 
-## Sample usage:
+## Sample usage
 
 ```php
 require 'vendor/autoload.php';
@@ -26,7 +27,9 @@ print $calculator
         ->getResult();
 ```
 
-## Functions:
+## Default operators and functions
+
+Default operators: `+ - * / ^`
 
 Default functions:
 * sin
@@ -39,6 +42,42 @@ Default functions:
 * max
 * avg
 
+## Variables
+
+Default variables:
+
+```
+$pi = 3.14159265359
+$e = 2.71828182846
+```
+
+You can add own variable to executor:
+
+```php
+$calculator->setVars([
+    'var1' => 0.15,
+    'var2' => 0.22
+]);
+
+$calculator->execute('$var1 + $var2');
+```
+
+## Extra operators and functions
+
+To load extra operators and functions use method `loadExtra()`:
+```php
+$calculator->loadExtra();
+```
+
+Extra operators are boolean operators: `< <= > >= == !=`
+You can use boolean operators with function `if()`
+
+```php
+print $calculator->execute('if(100+20+3 > 111, 23, 34)');
+```
+
+## Custom functions
+
 Add custom function to executor:
 ```php
 $calculator->addFunction('hypotenuse', function($a, $b) {
@@ -48,9 +87,7 @@ $calculator->addFunction('hypotenuse', function($a, $b) {
 print $calculator->execute('hypotenuse(3,4)');
 ```
 
-## Operators:
-
-Default operators: `+ - * / ^`
+## Custom operators
 
 Add custom operator to executor:
 
@@ -58,10 +95,9 @@ MyNamespace/ModulusToken.php:
 
 ```php
 <?php
-use avadim\MathExecutor\Classes\Generic\AbstractTokenOperator;
-use \avadim\MathExecutor\Classes\Generic\InterfaceToken;
-
-use \avadim\MathExecutor\Classes\Token\TokenScalarNumber;
+use avadim\MathExecutor\Generic\AbstractToken;
+use avadim\MathExecutor\Generic\AbstractTokenOperator;
+use avadim\MathExecutor\Token\TokenScalarNumber;
 
 class TokenOperatorModulus extends AbstractTokenOperator
 {
@@ -87,7 +123,7 @@ class TokenOperatorModulus extends AbstractTokenOperator
 
     /**
      * Execution of this operator
-     * @param InterfaceToken[] $stack Stack of tokens
+     * @param AbstractToken[] $stack Stack of tokens
      *
      * @return TokenScalarNumber
      */
@@ -110,21 +146,3 @@ $calculator->addOperator('mod', '\TokenOperatorModulus');
 echo $calculator->execute('286 mod 100');
 ```
 
-## Variables:
-
-Default variables:
-
-```
-$pi = 3.14159265359
-$e = 2.71828182846
-```
-
-You can add own variable to executor:
-
-```php
-$calculator->setVars([
-    'var1' => 0.15,
-    'var2' => 0.22
-]);
-
-$calculator->execute('$var1 + $var2');

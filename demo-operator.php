@@ -2,10 +2,9 @@
 
 include __DIR__ . '/src/autoload.php';
 
-use avadim\MathExecutor\Classes\Generic\AbstractTokenOperator;
-use \avadim\MathExecutor\Classes\Generic\InterfaceToken;
-
-use \avadim\MathExecutor\Classes\Token\TokenScalarNumber;
+use avadim\MathExecutor\Generic\AbstractToken;
+use avadim\MathExecutor\Generic\AbstractTokenOperator;
+use avadim\MathExecutor\Token\TokenScalarNumber;
 
 class TokenOperatorModulus extends AbstractTokenOperator
 {
@@ -31,7 +30,7 @@ class TokenOperatorModulus extends AbstractTokenOperator
 
     /**
      * Execution of this operator
-     * @param InterfaceToken[] $stack Stack of tokens
+     * @param AbstractToken[] $stack Stack of tokens
      *
      * @return TokenScalarNumber
      */

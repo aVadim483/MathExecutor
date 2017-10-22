@@ -1,8 +1,9 @@
 <?php
 /**
  * This file is part of the MathExecutor package
+ * https://github.com/aVadim483/MathExecutor
  *
- * (c) Alexander Kiryukhin
+ * Based on NeonXP/MathExecutor by Alexander Kiryukhin
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code
@@ -16,7 +17,7 @@ use avadim\MathExecutor\Exception\CalcException;
 /**
  * Class TokenFunction
  *
- * @package avadim\MathExecutor\Token
+ * @package avadim\MathExecutor
  */
 class TokenFunction extends TokenIdentifier
 {
@@ -37,20 +38,23 @@ class TokenFunction extends TokenIdentifier
         list($name, $numArguments, $callback, $variableArguments) = $this->options;
         for ($i = 0; $i < $numArguments; $i++) {
             $token = $stack ? array_pop($stack) : null;
-            if (empty($token) || !($token instanceof AbstractTokenScalar || $token instanceof TokenIdentifier)) {
+            if ($token instanceof AbstractTokenScalar || $token instanceof TokenIdentifier) {
+                $args[] = $token->getValue();
+            } elseif (is_scalar($token)) {
+                $args[] = $token;
+            } else {
                 throw new CalcException('Wrong arguments of function "' . $name . '"', CalcException::CALC_WRONG_FUNC_ARGS);
             }
-            $args[] = $token->getValue();
         }
         if ($variableArguments) {
             while ($stack && ($token = array_pop($stack)) && !$token instanceof TokenLeftBracket) {
                 $args[] = $token->getValue();
             }
-        } else {
+        } elseif ($stack) {
             $token = array_pop($stack);
-        }
-        if (!$token instanceof TokenLeftBracket) {
-            throw new CalcException('Wrong arguments of function "' . $name . '"', CalcException::CALC_WRONG_FUNC_ARGS);
+            if (!$token instanceof TokenLeftBracket) {
+                throw new CalcException('Wrong arguments of function "' . $name . '"', CalcException::CALC_WRONG_FUNC_ARGS);
+            }
         }
         $result = call_user_func_array($callback, array_reverse($args));
 

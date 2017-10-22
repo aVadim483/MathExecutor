@@ -10,13 +10,13 @@ echo $calculator->execute('1 + 2 * (2 - (4+10))^2 + sin(10)+0'), '<br>';
 
 // calc expression with variable
 $calculator->setVar('x', 100);
-echo $calculator->execute('min(1,-sin($x))'), '<br>';
+echo $calculator->execute('min(1,-sin($x),cos($x)-0.5)'), '<br>';
 
 // cascade calculation
 print $calculator
         ->calc('4+10')
         ->calc('1 + 2 * (2 - $_)^2')
         ->calc('$_ + sin(10)')
-        ->getResult();
+        ->result();
 
 // EOF

@@ -1,8 +1,9 @@
 <?php
 /**
  * This file is part of the MathExecutor package
+ * https://github.com/aVadim483/MathExecutor
  *
- * (c) Alexander Kiryukhin
+ * Based on NeonXP/MathExecutor by Alexander Kiryukhin
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code
@@ -11,6 +12,7 @@
 namespace avadim\MathExecutor;
 
 use avadim\MathExecutor\Generic\AbstractToken;
+use avadim\MathExecutor\Generic\AbstractTokenDelimiter;
 use avadim\MathExecutor\Generic\AbstractTokenGroup;
 use avadim\MathExecutor\Generic\AbstractTokenOperator;
 
@@ -20,12 +22,12 @@ use avadim\MathExecutor\Exception\LexerException;
 /**
  * Class TokenFactory
  *
- * @package avadim\MathExecutor\Classes
+ * @package avadim\MathExecutor
  */
 class TokenFactory
 {
     /**
-     * Available tokens (not operators and not functions)
+     * Available tokens (not functions)
      *
      * @var array
      */
@@ -62,6 +64,8 @@ class TokenFactory
     }
 
     /**
+     * Add token class
+     *
      * @param string $name
      * @param string $class
      * @param string $pattern
@@ -74,7 +78,7 @@ class TokenFactory
     }
 
     /**
-     * Add operator
+     * Add operator class
      *
      * @param string $name
      * @param string $class
@@ -106,6 +110,8 @@ class TokenFactory
     }
 
     /**
+     * Create token object
+     *
      * @param string $tokenStr
      * @param array  $tokensStream
      *
@@ -117,7 +123,7 @@ class TokenFactory
     {
         if ($tokensStream) {
             $prevToken = end($tokensStream);
-            $beginExpression = ($prevToken instanceof AbstractTokenOperator || $prevToken instanceof AbstractTokenGroup);
+            $beginExpression = ($prevToken instanceof AbstractTokenOperator || $prevToken instanceof AbstractTokenGroup || $prevToken instanceof AbstractTokenDelimiter);
         } else {
             $prevToken = null;
             $beginExpression = true;
@@ -158,6 +164,8 @@ class TokenFactory
     }
 
     /**
+     * Create function object
+     *
      * @param string $name
      *
      * @return mixed
@@ -175,6 +183,8 @@ class TokenFactory
     }
 
     /**
+     * Returns registered functions
+     *
      * @return array
      */
     public function getFunctions()

@@ -3,19 +3,19 @@
  * This file is part of the MathExecutor package
  * https://github.com/aVadim483/MathExecutor
  *
- * Based on NeonXP/MathExecutor by Alexander Kiryukhin
- *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Exception;
+namespace avadim\MathExecutor\Extra\Operator;
 
 /**
- * Class CalcException
+ * Class TokenOperatorGt
  *
  * @package avadim\MathExecutor
  */
-class CalcException extends MathExecutorException
+class TokenOperatorGe extends TokenOperatorCompare
 {
+    protected static $pattern = '>=';
+
 }

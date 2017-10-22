@@ -1,8 +1,9 @@
 <?php
 /**
  * This file is part of the MathExecutor package
+ * https://github.com/aVadim483/MathExecutor
  *
- * (c) Alexander Kiryukhin
+ * Based on NeonXP/MathExecutor by Alexander Kiryukhin
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code
@@ -15,11 +16,21 @@ use avadim\MathExecutor\Generic\AbstractTokenScalar;
 /**
  * Class TokenScalarString
  *
- * @package avadim\MathExecutor\Token
+ * @package avadim\MathExecutor
  */
 class TokenScalarString extends AbstractTokenScalar
 {
     protected static $pattern = '/\"[^\"]*\"/';
     protected static $matching = self::MATCH_REGEX;
+
+    /**
+     * @param string $value
+     * @param array  $options
+     */
+    public function __construct($value, $options = [])
+    {
+        $value = substr($value, 1, -1);
+        parent::__construct($value, $options);
+    }
 
 }

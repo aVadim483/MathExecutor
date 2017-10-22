@@ -1,8 +1,9 @@
 <?php
 /**
  * This file is part of the MathExecutor package
+ * https://github.com/aVadim483/MathExecutor
  *
- * (c) Alexander Kiryukhin
+ * Based on NeonXP/MathExecutor by Alexander Kiryukhin
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code
@@ -24,7 +25,7 @@ use avadim\MathExecutor\Exception\CalcException;
 /**
  * Class Calculator
  *
- * @package avadim\MathExecutor\Classes
+ * @package avadim\MathExecutor
  */
 class Calculator
 {
@@ -33,6 +34,7 @@ class Calculator
      */
     private $tokenFactory;
 
+    private $functions = [];
     private $logEnable = false;
     private $log = [];
 
@@ -69,12 +71,18 @@ class Calculator
     /**
      * @param TokenFunction $token
      * @param array         $stack
+     * @param bool          $return
+     *
+     * @return TokenScalarNumber
      */
-    protected function executeToken($token, &$stack)
+    protected function executeToken($token, &$stack, $return = false)
     {
         $token->setCalculator($this);
         $oldStack = $stack;
-        $stack[] = $token->execute($stack);
+        $result = $token->execute($stack);
+        if (!$return) {
+            $stack[] = $result;
+        }
         if ($this->logEnable) {
             $args = [];
             $count = count($oldStack);
@@ -85,8 +93,9 @@ class Calculator
                 $args[] = $oldStack[$i]->getValue();
             }
             $tokenStr = (string)$token->getValue();
-            $this->log[] = [$tokenStr, $args, end($stack)->getValue()];
+            $this->log[] = [$tokenStr, $args, $result->getValue()];
         }
+        return $result;
     }
 
     /**
@@ -130,4 +139,19 @@ class Calculator
 
         return $result->getValue();
     }
+
+    /**
+     * @param $name
+     * @param $stack
+     *
+     * @return TokenScalarNumber
+     */
+    public function callFunction($name, &$stack)
+    {
+        if (!isset($this->functions[$name])) {
+            $this->functions[$name] = $this->tokenFactory->createFunction($name);
+        }
+        return $this->executeToken($this->functions[$name], $stack, true);
+    }
+
 }

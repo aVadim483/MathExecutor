@@ -14,6 +14,7 @@ namespace avadim\MathExecutor;
 use avadim\MathExecutor\Exception\CalcException;
 use avadim\MathExecutor\Exception\ConfigException;
 use avadim\MathExecutor\Exception\LexerException;
+use avadim\MathExecutor\Generic\AbstractTokenScalar;
 
 /**
  * Class MathExecutor
@@ -22,8 +23,13 @@ use avadim\MathExecutor\Exception\LexerException;
  */
 class MathExecutor
 {
-    const RESULT_VARIABLE = '_';
-    const VAR_PREFIX      = '$';
+    const RESULT_VARIABLE           = '_';
+    const VAR_PREFIX                = '$';
+
+    const IDENTIFIER_AUTO           = 1;
+    const IDENTIFIER_AS_STRING      = 1;
+    const IDENTIFIER_AS_VARIABLE    = 2;
+    const IDENTIFIER_AS_CALLABLE    = 3;
 
     /**
      * Current config array
@@ -43,6 +49,13 @@ class MathExecutor
      * @var array
      */
     private $variables = [];
+
+    /**
+     * Available callable identifiers
+     *
+     * @var array
+     */
+    private $identifiers = [];
 
     /**
      * @var TokenFactory
@@ -68,8 +81,6 @@ class MathExecutor
      * Base math operators
      *
      * @param array $config
-     *
-     * @throws ConfigException
      */
     public function __construct($config = null)
     {
@@ -166,8 +177,9 @@ class MathExecutor
     {
         return [
             'options' => [
-                'var_prefix' => self::VAR_PREFIX,
-                'result_variable' => self::RESULT_VARIABLE,
+                'var_prefix'        => self::VAR_PREFIX,
+                'result_variable'   => self::RESULT_VARIABLE,
+                'identifier_as'     => self::IDENTIFIER_AUTO,
             ],
             'tokens' => [
                 'left_bracket'  => '\avadim\MathExecutor\Token\TokenLeftBracket',
@@ -219,7 +231,7 @@ class MathExecutor
 
         // set default tokens
         if (isset($config['tokens'])) {
-            foreach($config['tokens'] as $name => $options) {
+            foreach((array)$config['tokens'] as $name => $options) {
                 if (is_array($options)) {
                     list($class, $pattern) = $options;
                 } else {
@@ -232,14 +244,14 @@ class MathExecutor
 
         // set default operators
         if (isset($config['operators'])) {
-            foreach($config['operators'] as $name => $class) {
+            foreach((array)$config['operators'] as $name => $class) {
                 $this->tokenFactory->addOperator($name, $class);
             }
         }
 
         // set default functions
         if (isset($config['functions'])) {
-            foreach($config['functions'] as $name => $options) {
+            foreach((array)$config['functions'] as $name => $options) {
                 if (is_array($options)) {
                     list($callback, $minArguments, $variableArguments) = $options;
                 } else {
@@ -247,7 +259,8 @@ class MathExecutor
                     $minArguments = null;
                     $variableArguments = null;
                 }
-                $this->tokenFactory->addFunction($name, $callback, $minArguments, $variableArguments);
+                $function = static::createFunction($name, $callback, $minArguments, $variableArguments);
+                $this->tokenFactory->addFunction($name, $function);
             }
         }
 
@@ -436,6 +449,79 @@ class MathExecutor
     }
 
     /**
+     * Add identifier to executor
+     *
+     * @param string $identifier
+     * @param callable|AbstractTokenScalar $value
+     *
+     * @return MathExecutor
+     */
+    public function setIdentifier($identifier, $value)
+    {
+        $this->identifiers[$identifier] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Add identifiers to executor
+     *
+     * @param array $identifiers
+     * @param bool  $clear Clear previous identifiers
+     *
+     * @return MathExecutor
+     */
+    public function setIdentifiers(array $identifiers, $clear = true)
+    {
+        if ($clear) {
+            $this->removeIdentifiers();
+        }
+
+        foreach ($identifiers as $name => $value) {
+            $this->setIdentifier($name, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove identifier from executor
+     *
+     * @param string $identifier
+     *
+     * @return MathExecutor
+     */
+    public function removeIdentifier($identifier)
+    {
+        unset ($this->identifiers[$identifier]);
+
+        return $this;
+    }
+
+    /**
+     * Remove all identifiers
+     */
+    public function removeIdentifiers()
+    {
+        $this->identifiers = [];
+
+        return $this;
+    }
+
+    /**
+     * @param string $identifier
+     *
+     * @return mixed
+     */
+    public function getIdentifier($identifier)
+    {
+        if (isset($this->variables[$identifier])) {
+            return $this->variables[$identifier];
+        }
+        return null;
+    }
+
+    /**
      * Add operator to executor
      *
      * @param  string   $name
@@ -455,15 +541,17 @@ class MathExecutor
     /**
      * Add function to executor
      *
-     * @param  string       $name     Name of function
-     * @param  callable     $function Function
-     * @param  int          $places   Count of arguments
+     * @param string       $name     Name of function
+     * @param callable     $callback Function
+     * @param int          $minArguments   Count of arguments
+     * @param bool         $variableArguments
      *
      * @return MathExecutor
      */
-    public function addFunction($name, callable $function = null, $places = 1)
+    public function addFunction($name, callable $callback = null, $minArguments = 1, $variableArguments = false)
     {
-        $this->tokenFactory->addFunction($name, $function, $places);
+        $function = static::createFunction($name, $callback, $minArguments, $variableArguments);
+        $this->tokenFactory->addFunction($name, $function);
 
         return $this;
     }
@@ -492,7 +580,7 @@ class MathExecutor
             $tokensStack = $this->cache[$expression];
         }
         $calculator = $this->getCalculator();
-        $result = $calculator->calculate($tokensStack, $this->variables);
+        $result = $calculator->calculate($tokensStack, $this->variables, $this->identifiers);
 
         if (!$resultVariable) {
             $resultVariable = $this->getConfigOption('result_variable');
@@ -523,6 +611,7 @@ class MathExecutor
      * @return number
      *
      * @throws CalcException
+     * @throws LexerException
      */
     public function execute($expression)
     {
@@ -530,4 +619,26 @@ class MathExecutor
 
         return $this->result();
     }
+
+    /**
+     * Add function
+     *
+     * @param string   $name
+     * @param callable $callback
+     * @param int      $minArguments
+     * @param bool     $variableArguments
+     *
+     * @return mixed;
+     */
+    public static function createFunction($name, $callback, $minArguments = 1, $variableArguments = false)
+    {
+        if (null === $minArguments) {
+            $minArguments = 1;
+        } elseif ($minArguments === -1) {
+            $minArguments = 0;
+            $variableArguments = true;
+        }
+        return [$name, $minArguments, $callback, $variableArguments];
+    }
+
 }

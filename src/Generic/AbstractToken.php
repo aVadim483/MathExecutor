@@ -26,7 +26,7 @@ abstract class AbstractToken
     const MATCH_CALLBACK = 3;
 
     /** @var null|string  */
-    protected static $pattern = null;
+    protected static $pattern;
 
     /** @var int  */
     protected static $matching = self::MATCH_STRING;
@@ -47,7 +47,7 @@ abstract class AbstractToken
      * @param string $value
      * @param array  $options
      */
-    public function __construct($value, $options = [])
+    public function __construct($value, array $options = [])
     {
         $this->value = $value;
         $this->options = $options;

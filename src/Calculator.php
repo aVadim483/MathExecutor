@@ -73,13 +73,17 @@ class Calculator
      * @param array         $stack
      * @param bool          $return
      *
-     * @return TokenScalarNumber
+     * @return AbstractTokenScalar
      */
     protected function executeToken($token, &$stack, $return = false)
     {
         $token->setCalculator($this);
         $oldStack = $stack;
-        $result = $token->execute($stack);
+        if (method_exists($token, 'execute')) {
+            $result = $token->execute($stack);
+        } else {
+            $result = $this->tokenFactory->createScalarToken($token->getValue());
+        }
         if (!$return) {
             $stack[] = $result;
         }
@@ -101,14 +105,15 @@ class Calculator
     /**
      * Calculate array of tokens in reverse polish notation
      *
-     * @param  array $tokens    Array of tokens
-     * @param  array $variables Array of variables
+     * @param  array $tokens      Array of tokens
+     * @param  array $variables   Array of variables
+     * @param  array $identifiers Array of identifiers
      *
      * @return int|float
      *
      * @throws CalcException
      */
-    public function calculate($tokens, $variables)
+    public function calculate($tokens, $variables = [], $identifiers = [])
     {
         $stack = [];
         foreach ($tokens as $token) {
@@ -121,11 +126,25 @@ class Calculator
                 $this->executeToken($token, $stack);
             } elseif ($token instanceof TokenLeftBracket) {
                 $stack[] = $token;
-            } elseif ($token instanceof AbstractTokenScalar || $token instanceof TokenIdentifier) {
+            } elseif ($token instanceof AbstractTokenScalar) {
+                $stack[] = $token;
+            } elseif ($token instanceof TokenIdentifier) {
+                $identifier = $token->getValue();
+                if (isset($identifiers[$identifier])) {
+                    if (is_callable($identifiers[$identifier])) {
+                        $token = $this->tokenFactory->createScalarToken(call_user_func($identifiers[$identifier], $variables, $identifiers));
+                    } elseif (is_object($identifiers[$identifier])) {
+                        $token = $this->executeToken($token, $stack);
+                    } elseif (is_scalar($identifiers[$identifier])) {
+                        $token = $this->tokenFactory->createScalarToken($identifiers[$identifier]);
+                    }
+                } else {
+                    throw new CalcException('Unknown identifier "' . $identifier . '"', CalcException::CALC_UNKNOWN_VARIABLE);
+                }
                 $stack[] = $token;
             } elseif ($token instanceof TokenVariable) {
                 $variable = $token->getValue();
-                if (!array_key_exists($variable, $variables)) {
+                if (!$variables || !array_key_exists($variable, $variables)) {
                     throw new CalcException('Unknown variable "' . $variable . '"', CalcException::CALC_UNKNOWN_VARIABLE);
                 }
                 $value = $variables[$variable];

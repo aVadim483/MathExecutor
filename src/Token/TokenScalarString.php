@@ -29,7 +29,7 @@ class TokenScalarString extends AbstractTokenScalar
      */
     public function __construct($value, $options = [])
     {
-        $value = substr($value, 1, -1);
+        $value = (string)substr($value, 1, -1);
         parent::__construct($value, $options);
     }
 

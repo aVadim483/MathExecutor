@@ -65,7 +65,7 @@ class Lexer
         foreach($lexemes as $lexeme) {
             if (is_string($lexeme)) {
                 $tokenStr = $lexeme;
-            } elseif(isset($lexeme[0], $lexeme[1]) && $lexeme[0] !== T_BAD_CHARACTER && $lexeme[0] !== T_WHITESPACE) {
+            } elseif(isset($lexeme[0], $lexeme[1]) && $lexeme[0] !== T_WHITESPACE) {
                 $tokenStr = $lexeme[1];
             } else {
                 $tokenStr = null;

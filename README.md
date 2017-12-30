@@ -91,8 +91,6 @@ print $calculator->execute('hypotenuse(3,4)');
 
 Add custom operator to executor:
 
-MyNamespace/ModulusToken.php:
-
 ```php
 <?php
 use avadim\MathExecutor\Generic\AbstractToken;
@@ -146,3 +144,15 @@ $calculator->addOperator('mod', '\TokenOperatorModulus');
 echo $calculator->execute('286 mod 100');
 ```
 
+## Interpreting of identifiers
+
+Identifiers - start with a letter and consist of a sequence of letters and numbers. You can specify rules how to interpret them in calculations
+
+```php
+$calculator->setIdentifiers([
+    'ONE' => 1,
+    'YEAR' => function($variables, $identifiers) { return date('Y'); },
+]);
+
+$calculator->execute('YEAR + ONE');
+```

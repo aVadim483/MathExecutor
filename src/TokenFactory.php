@@ -18,6 +18,8 @@ use avadim\MathExecutor\Generic\AbstractTokenOperator;
 
 use avadim\MathExecutor\Exception\ConfigException;
 use avadim\MathExecutor\Exception\LexerException;
+use avadim\MathExecutor\Token\TokenScalarNumber;
+use avadim\MathExecutor\Token\TokenScalarString;
 
 /**
  * Class TokenFactory
@@ -94,19 +96,11 @@ class TokenFactory
      * Add function
      *
      * @param string   $name
-     * @param callable $callback
-     * @param int      $minArguments
-     * @param bool     $variableArguments
+     * @param mixed    $function
      */
-    public function addFunction($name, $callback, $minArguments = 1, $variableArguments = false)
+    public function addFunction($name, $function)
     {
-        if (null === $minArguments) {
-            $minArguments = 1;
-        } elseif ($minArguments === -1) {
-            $minArguments = 0;
-            $variableArguments = true;
-        }
-        $this->functions[$name] = [$name, $minArguments, $callback, $variableArguments];
+        $this->functions[$name] = $function;
     }
 
     /**
@@ -161,6 +155,16 @@ class TokenFactory
             }
         }
         throw new LexerException('Unknown token "' . $tokenStr . '"', LexerException::LEXER_UNKNOWN_TOKEN);
+    }
+
+    /**
+     * @param $value
+     *
+     * @return TokenScalarNumber|TokenScalarString
+     */
+    public function createScalarToken($value)
+    {
+        return is_numeric($value) ? new TokenScalarNumber($value) : new TokenScalarString($value);
     }
 
     /**

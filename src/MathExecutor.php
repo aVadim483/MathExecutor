@@ -252,12 +252,21 @@ class MathExecutor
         // set default functions
         if (isset($config['functions'])) {
             foreach((array)$config['functions'] as $name => $options) {
+                $minArguments = null;
+                $variableArguments = null;
                 if (is_array($options)) {
-                    list($callback, $minArguments, $variableArguments) = $options;
+                    switch (count($options)) {
+                        case 1:
+                            $callback = reset($options);
+                            break;
+                        case 2:
+                            list($callback, $minArguments) = $options;
+                            break;
+                        default:
+                            list($callback, $minArguments, $variableArguments) = $options;
+                    }
                 } else {
                     $callback = $options;
-                    $minArguments = null;
-                    $variableArguments = null;
                 }
                 $function = static::createFunction($name, $callback, $minArguments, $variableArguments);
                 $this->tokenFactory->addFunction($name, $function);

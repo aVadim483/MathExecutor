@@ -59,16 +59,16 @@ function compare($val1, $val2, $cond = null)
 }
 
 /**
- * @param $cond
- * @param $val1
- * @param $val2
+ * @param mixed $cond
+ * @param mixed $val1 Returns if $cond is true
+ * @param mixed $val2 Returns if $cond is false
  *
  * @return mixed
  */
 function if_then($cond, $val1, $val2)
 {
-    if ($cond > 0) {
-        return $val2;
+    if ((bool)$cond) {
+        return $val1;
     }
-    return $val1;
+    return $val2;
 }

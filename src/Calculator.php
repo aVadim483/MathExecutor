@@ -30,9 +30,9 @@ use avadim\MathExecutor\Exception\CalcException;
 class Calculator
 {
     /**
-     * @var TokenFactory
+     * @var Container
      */
-    private $tokenFactory;
+    private $container;
 
     private $functions = [];
     private $logEnable = false;
@@ -41,11 +41,31 @@ class Calculator
     /**
      * Calculator constructor.
      *
-     * @param $tokenFactory
+     * @param Container $container
      */
-    public function __construct($tokenFactory)
+    public function __construct($container = null)
     {
-        $this->tokenFactory = $tokenFactory;
+        $this->setContainer($container);
+    }
+
+    /**
+     * @param Container $container
+     *
+     * @return $this
+     */
+    public function setContainer($container)
+    {
+        $this->container = $container;
+
+        return $this;
+    }
+
+    /**
+     * @return TokenFactory
+     */
+    public function getTokenFactory()
+    {
+        return $this->container->get('TokenFactory');
     }
 
     /**
@@ -70,10 +90,12 @@ class Calculator
 
     /**
      * @param TokenFunction $token
-     * @param array         $stack
-     * @param bool          $return
+     * @param array $stack
+     * @param bool $return
      *
      * @return AbstractTokenScalar
+     *
+     * @throws CalcException
      */
     protected function executeToken($token, &$stack, $return = false)
     {
@@ -82,7 +104,7 @@ class Calculator
         if (method_exists($token, 'execute')) {
             $result = $token->execute($stack);
         } else {
-            $result = $this->tokenFactory->createScalarToken($token->getValue());
+            $result = $this->getTokenFactory()->createScalarToken($token->getValue());
         }
         if (!$return) {
             $stack[] = $result;
@@ -113,7 +135,7 @@ class Calculator
      *
      * @throws CalcException
      */
-    public function calculate($tokens, $variables = [], $identifiers = [])
+    public function calculate($tokens, array $variables = [], array $identifiers = [])
     {
         $stack = [];
         foreach ($tokens as $token) {
@@ -132,11 +154,11 @@ class Calculator
                 $identifier = $token->getValue();
                 if (isset($identifiers[$identifier])) {
                     if (is_callable($identifiers[$identifier])) {
-                        $token = $this->tokenFactory->createScalarToken(call_user_func($identifiers[$identifier], $variables, $identifiers));
+                        $token = $this->getTokenFactory()->createScalarToken(call_user_func($identifiers[$identifier], $variables, $identifiers));
                     } elseif (is_object($identifiers[$identifier])) {
                         $token = $this->executeToken($token, $stack);
                     } elseif (is_scalar($identifiers[$identifier])) {
-                        $token = $this->tokenFactory->createScalarToken($identifiers[$identifier]);
+                        $token = $this->getTokenFactory()->createScalarToken($identifiers[$identifier]);
                     }
                 } else {
                     throw new CalcException('Unknown identifier "' . $identifier . '"', CalcException::CALC_UNKNOWN_VARIABLE);
@@ -163,12 +185,15 @@ class Calculator
      * @param $name
      * @param $stack
      *
-     * @return TokenScalarNumber
+     * @return AbstractTokenScalar
+     *
+     * @throws Exception\LexerException
+     * @throws CalcException
      */
     public function callFunction($name, &$stack)
     {
         if (!isset($this->functions[$name])) {
-            $this->functions[$name] = $this->tokenFactory->createFunction($name);
+            $this->functions[$name] = $this->getTokenFactory()->createFunction($name);
         }
         return $this->executeToken($this->functions[$name], $stack, true);
     }

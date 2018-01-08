@@ -39,6 +39,11 @@ class MathExecutor
     private $config = [];
 
     /**
+     * @var Container
+     */
+    private $container;
+
+    /**
      * @var bool
      */
     private $cacheEnable = true;
@@ -58,21 +63,6 @@ class MathExecutor
     private $identifiers = [];
 
     /**
-     * @var TokenFactory
-     */
-    private $tokenFactory;
-
-    /**
-     * @var Lexer
-     */
-    private $lexer;
-
-    /**
-     * @var Calculator
-     */
-    private $calculator;
-
-    /**
      * @var array
      */
     private $cache = [];
@@ -81,6 +71,8 @@ class MathExecutor
      * Base math operators
      *
      * @param array $config
+     *
+     * @throws ConfigException
      */
     public function __construct($config = null)
     {
@@ -89,6 +81,8 @@ class MathExecutor
 
     /**
      * Clone object and renew all objects
+     *
+     * @throws ConfigException
      */
     public function __clone()
     {
@@ -97,12 +91,15 @@ class MathExecutor
 
     /**
      * @param array $config
+     *
+     * @throws ConfigException
      */
     protected function init($config = null)
     {
-        $this->tokenFactory = $this->createTokenFactory();
-        $this->lexer = $this->createLexer($this->tokenFactory);
-        $this->calculator = $this->createCalculator($this->tokenFactory);
+        $this->container = new Container();
+        $this->container->set('TokenFactory', $this->createTokenFactory($this->container));
+        $this->container->set('Lexer', $this->createLexer($this->container));
+        $this->container->set('Calculator', $this->createCalculator($this->container));
 
         if (null === $config) {
             $config = $this->getDefaults();
@@ -119,31 +116,33 @@ class MathExecutor
     }
 
     /**
+     * @param Container $container
+     *
      * @return TokenFactory
      */
-    public function createTokenFactory()
+    public function createTokenFactory($container)
     {
-        return new TokenFactory();
+        return new TokenFactory($container);
     }
 
     /**
-     * @param TokenFactory $tokenFactory
+     * @param Container $container
      *
      * @return Lexer
      */
-    public function createLexer($tokenFactory)
+    public function createLexer($container)
     {
-        return new Lexer($tokenFactory);
+        return new Lexer($container);
     }
 
     /**
-     * @param TokenFactory $tokenFactory
+     * @param Container $container
      *
      * @return Calculator
      */
-    public function createCalculator($tokenFactory)
+    public function createCalculator($container)
     {
-        return new Calculator($tokenFactory);
+        return new Calculator($container);
     }
 
     /**
@@ -151,7 +150,7 @@ class MathExecutor
      */
     public function getTokenFactory()
     {
-        return $this->tokenFactory;
+        return $this->container->get('TokenFactory');
     }
 
     /**
@@ -159,7 +158,7 @@ class MathExecutor
      */
     public function getLexer()
     {
-        return $this->lexer;
+        return $this->container->get('Lexer');
     }
 
     /**
@@ -167,7 +166,7 @@ class MathExecutor
      */
     public function getCalculator()
     {
-        return $this->calculator;
+        return $this->container->get('Calculator');
     }
 
     /**
@@ -225,9 +224,7 @@ class MathExecutor
      */
     protected function applyConfig($config)
     {
-        if (!$this->tokenFactory) {
-            $this->tokenFactory = $this->getTokenFactory();
-        }
+        $tokenFactory = $this->getTokenFactory();
 
         // set default tokens
         if (isset($config['tokens'])) {
@@ -238,14 +235,14 @@ class MathExecutor
                     $class = $options;
                     $pattern = null;
                 }
-                $this->tokenFactory->addToken($name, $class, $pattern);
+                $tokenFactory->addToken($name, $class, $pattern);
             }
         }
 
         // set default operators
         if (isset($config['operators'])) {
             foreach((array)$config['operators'] as $name => $class) {
-                $this->tokenFactory->addOperator($name, $class);
+                $tokenFactory->addOperator($name, $class);
             }
         }
 
@@ -269,7 +266,7 @@ class MathExecutor
                     $callback = $options;
                 }
                 $function = static::createFunction($name, $callback, $minArguments, $variableArguments);
-                $this->tokenFactory->addFunction($name, $function);
+                $tokenFactory->addFunction($name, $function);
             }
         }
 
@@ -286,6 +283,8 @@ class MathExecutor
      * @param $config
      *
      * @return $this
+     *
+     * @throws ConfigException
      */
     protected function setConfig($config)
     {
@@ -299,6 +298,8 @@ class MathExecutor
      * @param $config
      *
      * @return $this
+     *
+     * @throws ConfigException
      */
     protected function addConfig($config)
     {
@@ -347,6 +348,8 @@ class MathExecutor
 
     /**
      * @return MathExecutor
+     *
+     * @throws ConfigException
      */
     public function loadExtra()
     {
@@ -542,7 +545,7 @@ class MathExecutor
      */
     public function addOperator($name, $operatorClass)
     {
-        $this->tokenFactory->addOperator($name, $operatorClass);
+        $this->getTokenFactory()->addOperator($name, $operatorClass);
 
         return $this;
     }
@@ -560,7 +563,7 @@ class MathExecutor
     public function addFunction($name, callable $callback = null, $minArguments = 1, $variableArguments = false)
     {
         $function = static::createFunction($name, $callback, $minArguments, $variableArguments);
-        $this->tokenFactory->addFunction($name, $function);
+        $this->getTokenFactory()->addFunction($name, $function);
 
         return $this;
     }

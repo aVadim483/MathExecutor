@@ -29,6 +29,11 @@ use avadim\MathExecutor\Token\TokenScalarString;
 class TokenFactory
 {
     /**
+     * @var Container
+     */
+    private $container;
+
+    /**
      * Available tokens (not functions)
      *
      * @var array
@@ -41,6 +46,28 @@ class TokenFactory
      * @var array
      */
     protected $functions = [];
+
+    /**
+     * Lexer constructor.
+     *
+     * @param Container $container
+     */
+    public function __construct($container = null)
+    {
+        $this->setContainer($container);
+    }
+
+    /**
+     * @param Container $container
+     *
+     * @return $this
+     */
+    public function setContainer($container)
+    {
+        $this->container = $container;
+
+        return $this;
+    }
 
     /**
      * @param string $name
@@ -58,7 +85,7 @@ class TokenFactory
         }
         $matching['class'] = $tokenClass;
 
-        if (!isset($this->tokens[$name]) && $prepend) {
+        if ($prepend && !isset($this->tokens[$name])) {
             $this->tokens = array_merge([$name => $matching], $this->tokens);
         } else {
             $this->tokens[$name] = $matching;
@@ -124,9 +151,6 @@ class TokenFactory
             $prevToken = null;
             $beginExpression = true;
         }
-        //if (isset($this->functions[$tokenStr], $this->tokens['function']['class'])) {
-        //    return $this->createFunction($tokenStr);
-        //}
 
         $options = ['begin' => $beginExpression];
         foreach ($this->tokens as $tokenName => $tokenMatching) {

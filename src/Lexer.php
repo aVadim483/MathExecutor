@@ -30,32 +30,79 @@ use avadim\MathExecutor\Exception\LexerException;
  */
 class Lexer
 {
-    /**
-     * @var TokenFactory
-     */
-    private $tokenFactory;
+    /** @var Container */
+    private $container;
+
+    /** @var array  */
     private $lexemes = [];
 
     /**
      * Lexer constructor.
      *
-     * @param TokenFactory $tokenFactory
+     * @param Container $container
      */
-    public function __construct($tokenFactory)
+    public function __construct($container = null)
     {
-        $this->tokenFactory = $tokenFactory;
+        $this->setContainer($container);
+    }
+
+    /**
+     * @param Container $container
+     *
+     * @return $this
+     */
+    public function setContainer($container)
+    {
+        $this->container = $container;
+
+        return $this;
+    }
+
+    /**
+     * @return TokenFactory
+     */
+    public function getTokenFactory()
+    {
+        return $this->container->get('TokenFactory');
+    }
+
+    public function setLexemes($lexemes)
+    {
+        $this->lexemes = $lexemes;
+
+        return $this;
+    }
+
+    public function getLexemes()
+    {
+        return $this->lexemes;
     }
 
     /**
      * @param string $input Source string of equation
+     *
+     * @return $this
      */
     public function init($input)
+    {
+        $lexemes = $this->parse($input);
+        $this->setLexemes($lexemes);
+
+        return $this;
+    }
+
+    /**
+     * @param $input
+     *
+     * @return array
+     */
+    protected function parse($input)
     {
         // parse to lexemes array
         $phpTokens = token_get_all('<?php ' . $input);
         array_shift($phpTokens);
 
-        $this->lexemes = [];
+        $lexemesArray = [];
         foreach($phpTokens as $phpToken) {
             if (is_string($phpToken)) {
                 $lexemeStr = $phpToken;
@@ -65,10 +112,15 @@ class Lexer
                 $lexemeStr = null;
             }
             if (null !== $lexemeStr) {
-                $this->lexemes[] = $lexemeStr;
+                if (strlen($lexemeStr) > 1 && ($lexemeStr[0] === '#' || $lexemeStr[0] === '/')) {
+                    $lexemesArray[] = [$lexemeStr[0]];
+                    $lexemesArray[] = $this->parse(substr($lexemeStr, 1));
+                } else {
+                    $lexemesArray[] = [$lexemeStr];
+                }
             }
         }
-
+        return array_merge(...$lexemesArray);
     }
 
     /**
@@ -80,13 +132,14 @@ class Lexer
     {
         // convert lexemes to tokens
         $tokensStream = [];
-        foreach ($this->lexemes as $lexemeNum => $lexemeStr) {
-            $tokensStream[] = $this->tokenFactory->createToken($lexemeStr, $tokensStream, $this->lexemes, $lexemeNum);
+        $lexemes = $this->getLexemes();
+        foreach ($lexemes as $lexemeNum => $lexemeStr) {
+            $tokensStream[] = $this->getTokenFactory()->createToken($lexemeStr, $tokensStream, $lexemes, $lexemeNum);
         }
         // convert identifiers to functions
         foreach ($tokensStream as $num => $token) {
             if ($token instanceof TokenIdentifier && isset($tokensStream[$num + 1]) && $tokensStream[$num + 1] instanceof TokenLeftBracket) {
-                $tokensStream[$num] = $this->tokenFactory->createFunction($token->getLexeme());
+                $tokensStream[$num] = $this->getTokenFactory()->createFunction($token->getLexeme());
             }
         }
         return $tokensStream;

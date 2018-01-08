@@ -27,12 +27,12 @@ class TokenOperatorMinus extends AbstractTokenOperator
     private $unary = false;
 
     /**
-     * @param string $value
+     * @param string $lexeme
      * @param array  $options
      */
-    public function __construct($value, $options = [])
+    public function __construct($lexeme, $options = [])
     {
-        parent::__construct($value, $options);
+        parent::__construct($lexeme, $options);
         if (!empty($options['begin'])) {
             $this->unary = true;
         }

@@ -20,17 +20,18 @@ use avadim\MathExecutor\Generic\AbstractTokenScalar;
  */
 class TokenScalarString extends AbstractTokenScalar
 {
-    protected static $pattern = '/\"[^\"]*\"/';
+    protected static $pattern = '/^\"[^\"]*\"$/';
     protected static $matching = self::MATCH_REGEX;
 
     /**
-     * @param string $value
+     * @param string $lexeme
      * @param array  $options
      */
-    public function __construct($value, $options = [])
+    public function __construct($lexeme, $options = [])
     {
-        $value = (string)substr($value, 1, -1);
+        $value = (string)substr($lexeme, 1, -1);
         parent::__construct($value, $options);
+        $this->lexeme = $lexeme;
     }
 
 }

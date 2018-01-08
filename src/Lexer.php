@@ -34,6 +34,7 @@ class Lexer
      * @var TokenFactory
      */
     private $tokenFactory;
+    private $lexemes = [];
 
     /**
      * Lexer constructor.
@@ -43,6 +44,52 @@ class Lexer
     public function __construct($tokenFactory)
     {
         $this->tokenFactory = $tokenFactory;
+    }
+
+    /**
+     * @param string $input Source string of equation
+     */
+    public function init($input)
+    {
+        // parse to lexemes array
+        $phpTokens = token_get_all('<?php ' . $input);
+        array_shift($phpTokens);
+
+        $this->lexemes = [];
+        foreach($phpTokens as $phpToken) {
+            if (is_string($phpToken)) {
+                $lexemeStr = $phpToken;
+            } elseif(isset($phpToken[0], $phpToken[1]) && $phpToken[0] !== T_WHITESPACE) {
+                $lexemeStr = $phpToken[1];
+            } else {
+                $lexemeStr = null;
+            }
+            if (null !== $lexemeStr) {
+                $this->lexemes[] = $lexemeStr;
+            }
+        }
+
+    }
+
+    /**
+     * @return array
+     *
+     * @throws LexerException
+     */
+    public function getTokensStream()
+    {
+        // convert lexemes to tokens
+        $tokensStream = [];
+        foreach ($this->lexemes as $lexemeNum => $lexemeStr) {
+            $tokensStream[] = $this->tokenFactory->createToken($lexemeStr, $tokensStream, $this->lexemes, $lexemeNum);
+        }
+        // convert identifiers to functions
+        foreach ($tokensStream as $num => $token) {
+            if ($token instanceof TokenIdentifier && isset($tokensStream[$num + 1]) && $tokensStream[$num + 1] instanceof TokenLeftBracket) {
+                $tokensStream[$num] = $this->tokenFactory->createFunction($token->getLexeme());
+            }
+        }
+        return $tokensStream;
     }
 
     /**
@@ -56,26 +103,9 @@ class Lexer
      */
     public function stringToTokensStream($input)
     {
-        // parse to lexemes array
-        $lexemes = token_get_all('<?php ' . $input);
-        array_shift($lexemes);
+        $this->init($input);
 
-        // convert lexemes to tokens
-        $tokensStream = [];
-        foreach($lexemes as $lexeme) {
-            if (is_string($lexeme)) {
-                $tokenStr = $lexeme;
-            } elseif(isset($lexeme[0], $lexeme[1]) && $lexeme[0] !== T_WHITESPACE) {
-                $tokenStr = $lexeme[1];
-            } else {
-                $tokenStr = null;
-            }
-            if (null !== $tokenStr) {
-                $tokensStream[] = $this->tokenFactory->createToken($tokenStr, $tokensStream);
-            }
-        }
-
-        return $tokensStream;
+        return $this->getTokensStream();
     }
 
     /**

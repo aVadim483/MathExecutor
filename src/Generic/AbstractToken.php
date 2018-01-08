@@ -35,6 +35,9 @@ abstract class AbstractToken
     protected static $callback = 'isMatch';
 
     /** @var string  */
+    protected $lexeme;
+
+    /** @var string  */
     protected $value;
 
     /** @var array  */
@@ -44,13 +47,22 @@ abstract class AbstractToken
     protected $calculator;
 
     /**
-     * @param string $value
+     * @param string $lexeme
      * @param array  $options
      */
-    public function __construct($value, array $options = [])
+    public function __construct($lexeme, array $options = [])
     {
-        $this->value = $value;
+        $this->lexeme = $lexeme;
+        $this->value = $lexeme;
         $this->options = $options;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLexeme()
+    {
+        return $this->lexeme;
     }
 
     /**

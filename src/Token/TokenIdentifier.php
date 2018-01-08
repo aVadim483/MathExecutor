@@ -20,7 +20,7 @@ use avadim\MathExecutor\Generic\AbstractToken;
  */
 class TokenIdentifier extends AbstractToken
 {
-    protected static $pattern = '/[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/';
+    protected static $pattern = '/^[a-zA-Z_\x7f-\xff]([a-zA-Z0-9_\x7f-\xff]*)$/';
     protected static $matching = self::MATCH_REGEX;
 
 }

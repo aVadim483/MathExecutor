@@ -106,14 +106,16 @@ class TokenFactory
     /**
      * Create token object
      *
-     * @param string $tokenStr
-     * @param array  $tokensStream
+     * @param string $tokenStr      Token as string
+     * @param array  $tokensStream  Stream of previous tokens
+     * @param array  $lexemes       Array of all lexemes
+     * @param int    $lexemeNum     Number of current lexemes
      *
      * @return mixed
      *
      * @throws LexerException
      */
-    public function createToken($tokenStr, $tokensStream)
+    public function createToken($tokenStr, $tokensStream, $lexemes, $lexemeNum)
     {
         if ($tokensStream) {
             $prevToken = end($tokensStream);
@@ -122,9 +124,9 @@ class TokenFactory
             $prevToken = null;
             $beginExpression = true;
         }
-        if (isset($this->functions[$tokenStr], $this->tokens['function']['class'])) {
-            return $this->createFunction($tokenStr);
-        }
+        //if (isset($this->functions[$tokenStr], $this->tokens['function']['class'])) {
+        //    return $this->createFunction($tokenStr);
+        //}
 
         $options = ['begin' => $beginExpression];
         foreach ($this->tokens as $tokenName => $tokenMatching) {

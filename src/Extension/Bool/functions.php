@@ -7,7 +7,7 @@
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Extra;
+namespace avadim\MathExecutor\Extension\Bool;
 
 /**
  * @param $val1

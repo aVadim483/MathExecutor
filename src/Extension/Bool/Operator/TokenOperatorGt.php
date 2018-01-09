@@ -7,15 +7,15 @@
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Extra\Operator;
+namespace avadim\MathExecutor\Extension\Bool\Operator;
 
 /**
  * Class TokenOperatorGt
  *
  * @package avadim\MathExecutor
  */
-class TokenOperatorNe extends TokenOperatorCompare
+class TokenOperatorGt extends TokenOperatorCompare
 {
-    protected static $pattern = '!=';
+    protected static $pattern = '>';
 
 }

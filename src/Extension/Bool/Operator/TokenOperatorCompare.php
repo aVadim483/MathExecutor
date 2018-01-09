@@ -7,7 +7,7 @@
  * file that was distributed with this source code
  */
 
-namespace avadim\MathExecutor\Extra\Operator;
+namespace avadim\MathExecutor\Extension\Bool\Operator;
 
 use avadim\MathExecutor\Generic\AbstractToken;
 use avadim\MathExecutor\Generic\AbstractTokenOperator;

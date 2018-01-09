@@ -1,6 +1,6 @@
 <?php
 
-include __DIR__ . '/src/autoload.php';
+include __DIR__ . '/../src/autoload.php';
 
 use avadim\MathExecutor\Generic\AbstractToken;
 use avadim\MathExecutor\Generic\AbstractTokenOperator;
@@ -46,4 +46,5 @@ class TokenOperatorModulus extends AbstractTokenOperator
 
 $calculator = new avadim\MathExecutor\MathExecutor();
 $calculator->addOperator('mod', '\TokenOperatorModulus');
-echo $calculator->execute('286 mod 100'), '<br>';
+
+echo $calculator->execute('286 mod 100'), "\n";

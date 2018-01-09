@@ -347,13 +347,19 @@ class MathExecutor
     }
 
     /**
+     * @param string $extensionName
+     * @param string $path
+     *
      * @return MathExecutor
      *
      * @throws ConfigException
      */
-    public function loadExtra()
+    public function loadExtension($extensionName, $path = null)
     {
-        return $this->loadConfig(__DIR__ . '/Extra/config.php');
+        if (null === $path) {
+            $path = __DIR__ . '/Extension/' . $extensionName . '/config.php';
+        }
+        return $this->loadConfig($path);
     }
 
     /**

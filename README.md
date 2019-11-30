@@ -4,6 +4,8 @@
 
 Math expressions calculator with custom operators, functions and variables
 
+This package no longer supported! Please use AceCalculator instead! https://github.com/aVadim483/ace-calculator
+
 ## Install via Composer
 
 |$ composer require avadim/math-executor
